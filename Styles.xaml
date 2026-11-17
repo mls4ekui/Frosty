@@ -1,0 +1,353 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="clr-namespace:Frosty">
+
+                                
+    <SolidColorBrush x:Key="CardBgBrush" Color="#B81F242D" />
+    <SolidColorBrush x:Key="CardBorderBrush" Color="#334155" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#38BDF8" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F3F4F6" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#9CA3AF" />
+
+                                         
+    <Style x:Key="CardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource CardBgBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="14,10" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+
+    <Style x:Key="CardTitleStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="CardDescStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Margin" Value="0,3,0,0" />
+    </Style>
+
+    <Style x:Key="SliderLabelStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="FontSize" Value="12.5" />
+    </Style>
+
+    <Style x:Key="SliderValueStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+
+                                
+    <Style x:Key="FluentToggleStyle" TargetType="CheckBox">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="16,0,0,0" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid Width="48" Height="26" Background="Transparent">
+                        <Border x:Name="FocusBorder"
+                                CornerRadius="13"
+                                BorderBrush="{StaticResource AccentBrush}"
+                                BorderThickness="1.5"
+                                Visibility="Collapsed"
+                                Margin="-2" />
+                        <Border Width="44"
+                                Height="22"
+                                CornerRadius="11"
+                                Background="#374151"
+                                BorderBrush="#4B5563"
+                                BorderThickness="1"
+                                ui:Motion.HoverBackground="#434E60"
+                                ui:Motion.HoverBorder="#6B7280"
+                                ui:Motion.CheckedBackground="#38BDF8"
+                                ui:Motion.CheckedBorder="#38BDF8" />
+                        <Ellipse Width="16"
+                                 Height="16"
+                                 Fill="#D1D5DB"
+                                 HorizontalAlignment="Left"
+                                 VerticalAlignment="Center"
+                                 Margin="5,0,0,0"
+                                 ui:Motion.CheckedBackground="#0F172A"
+                                 ui:Motion.HoverScale="1.12"
+                                 ui:Motion.PressedScale="0.9"
+                                 ui:Motion.CheckedOffsetX="22" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="FocusBorder" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+                               
+    <Style x:Key="ActionButtonStyle" TargetType="Button">
+        <Setter Property="Foreground" Value="#F3F4F6" />
+        <Setter Property="Padding" Value="12,10" />
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="#283142"
+                            BorderBrush="#3B475E"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}"
+                            ui:Motion.HoverBackground="#334155"
+                            ui:Motion.PressedBackground="#1E293B"
+                            ui:Motion.HoverBorder="#38BDF8"
+                            ui:Motion.PressedBorder="#38BDF8"
+                            ui:Motion.FocusBorder="#38BDF8"
+                            ui:Motion.PressedScale="0.97">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="PrimaryBtnStyle" TargetType="Button">
+        <Setter Property="Foreground" Value="#0F172A" />
+        <Setter Property="Padding" Value="22,9" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="#38BDF8"
+                            BorderBrush="#38BDF8"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}"
+                            ui:Motion.HoverBackground="#7DD3FC"
+                            ui:Motion.PressedBackground="#0284C7"
+                            ui:Motion.HoverBorder="#7DD3FC"
+                            ui:Motion.PressedBorder="#0284C7"
+                            ui:Motion.FocusBorder="#FFFFFF"
+                            ui:Motion.PressedScale="0.96">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="CloseButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="Transparent"
+                            CornerRadius="6"
+                            ui:Motion.HoverBackground="#EF4444"
+                            ui:Motion.PressedBackground="#B91C1C"
+                            ui:Motion.PressedScale="0.9">
+                        <Path Data="M6,6 L18,18 M6,18 L18,6"
+                              Stroke="#9CA3AF"
+                              StrokeThickness="1.8"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+                                                         
+    <Style x:Key="PresetCardRadioStyle" TargetType="RadioButton">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border Background="#B81F242D"
+                            BorderBrush="#334155"
+                            BorderThickness="1.5"
+                            CornerRadius="10"
+                            Padding="12,10"
+                            ui:Motion.HoverBackground="#252D3A"
+                            ui:Motion.HoverBorder="#64748B"
+                            ui:Motion.CheckedBackground="#1E2D42"
+                            ui:Motion.CheckedBorder="#38BDF8"
+                            ui:Motion.FocusBorder="#94A3B8"
+                            ui:Motion.PressedScale="0.985">
+                        <ContentPresenter />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ColorSwatchStyle" TargetType="RadioButton">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Margin" Value="0,0,10,8" />
+        <Setter Property="Foreground" Value="#F3F4F6" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border Padding="12,8"
+                            CornerRadius="8"
+                            Background="#181C24"
+                            BorderBrush="#2E3646"
+                            BorderThickness="1.5"
+                            ui:Motion.HoverBorder="#64748B"
+                            ui:Motion.CheckedBackground="#232D3F"
+                            ui:Motion.CheckedBorder="#38BDF8"
+                            ui:Motion.FocusBorder="#FFFFFF"
+                            ui:Motion.PressedScale="0.96">
+                        <ContentPresenter VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="NavTabStyle" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+        <Setter Property="FontSize" Value="13.5" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Margin" Value="0,0,0,6" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border Background="Transparent"
+                            BorderBrush="Transparent"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="12,10"
+                            ui:Motion.HoverBackground="#252B37"
+                            ui:Motion.CheckedBackground="#2A3241"
+                            ui:Motion.FocusBorder="#38BDF8"
+                            ui:Motion.PressedScale="0.98">
+                        <Grid>
+                            <Border Width="3.5"
+                                    Height="18"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    CornerRadius="2"
+                                    Background="#0038BDF8"
+                                    Margin="-6,0,0,0"
+                                    ui:Motion.CheckedBackground="#38BDF8" />
+                            <ContentPresenter VerticalAlignment="Center" Margin="6,0,0,0" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Foreground" Value="#FFFFFF" />
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+                                
+    <Style x:Key="SliderFillRepeatStyle" TargetType="RepeatButton">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Grid Background="Transparent" Height="22">
+                        <Border Height="4" CornerRadius="2,0,0,2" Background="#38BDF8" VerticalAlignment="Center" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SliderEmptyRepeatStyle" TargetType="RepeatButton">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Grid Background="Transparent" Height="22" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SliderThumbStyle" TargetType="Thumb">
+        <Setter Property="Width" Value="16" />
+        <Setter Property="Height" Value="16" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Grid Width="16" Height="16" Background="Transparent">
+                        <Ellipse Width="28"
+                                 Height="28"
+                                 Fill="#0038BDF8"
+                                 IsHitTestVisible="False"
+                                 ui:Motion.HoverBackground="#2038BDF8"
+                                 ui:Motion.PressedBackground="#4038BDF8" />
+                        <Ellipse Width="16"
+                                 Height="16"
+                                 Fill="#F3F4F6"
+                                 Stroke="#38BDF8"
+                                 StrokeThickness="2"
+                                 ui:Motion.HoverScale="1.15"
+                                 ui:Motion.PressedScale="1.05" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Slider">
+        <Setter Property="Height" Value="22" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid Height="22" Background="Transparent">
+                        <Border Height="4" CornerRadius="2" Background="#374151" VerticalAlignment="Center" />
+                        <Track x:Name="PART_Track">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource SliderFillRepeatStyle}" Command="Slider.DecreaseLarge" />
+                            </Track.DecreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource SliderThumbStyle}" />
+                            </Track.Thumb>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource SliderEmptyRepeatStyle}" Command="Slider.IncreaseLarge" />
+                            </Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

@@ -1,0 +1,940 @@
+﻿<Window x:Class="Frosty.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="Настройки Frosty"
+        Width="760"
+        Height="580"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        Background="Transparent"
+        ResizeMode="CanMinimize"
+        ShowInTaskbar="True"
+        Topmost="True">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0"
+                            CornerRadius="12"
+                            GlassFrameThickness="-1"
+                            ResizeBorderThickness="0"
+                            UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
+
+
+    <Border x:Name="RootBorder"
+            CornerRadius="12"
+            Background="#CC141820"
+            BorderBrush="#3B475E"
+            BorderThickness="1"
+            Margin="0">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="46" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Background="#9910131A"
+                    CornerRadius="12,12,0,0"
+                    BorderBrush="#222834"
+                    BorderThickness="0,0,0,1"
+                    MouseLeftButtonDown="OnTitleBarDrag">
+                <Grid Margin="18,0,10,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Path Data="M12,2 L12,22 M3.34,7 L20.66,17 M3.34,17 L20.66,7"
+                              Stroke="#38BDF8"
+                              StrokeThickness="2.2"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              Width="18"
+                              Height="18"
+                              Stretch="Uniform"
+                              Margin="0,0,10,0" />
+                        <TextBlock Text="Frosty"
+                                   Foreground="#FFFFFF"
+                                   FontWeight="Bold"
+                                   FontSize="14.5"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <Button Style="{StaticResource CloseButtonStyle}"
+                            Click="OnCloseButtonClick"
+                            AutomationProperties.Name="Close settings" />
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="238" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Background="#9912161F"
+                        CornerRadius="0,0,0,12"
+                        BorderBrush="#222834"
+                        BorderThickness="0,0,1,0"
+                        Padding="12,16">
+                    <Grid>
+                        <StackPanel>
+                            <RadioButton x:Name="TabWeatherBtn"
+                                         Style="{StaticResource NavTabStyle}"
+                                         IsChecked="True"
+                                         Checked="OnNavTabChecked">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M12,3 L12,21 M4.2,7.5 L19.8,16.5 M4.2,16.5 L19.8,7.5"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                          StrokeThickness="1.8"
+                                          Width="16"
+                                          Height="16"
+                                          Stretch="Uniform"
+                                          Margin="0,0,10,0" />
+                                    <TextBlock x:Name="NavWeatherText" Text="Погода и физика" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </RadioButton>
+
+                            <RadioButton x:Name="TabInteractiveBtn"
+                                         Style="{StaticResource NavTabStyle}"
+                                         Checked="OnNavTabChecked">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M12,2 A4,4 0 1,1 12,10 A4,4 0 1,1 12,2 M6,16 A6,6 0 1,1 18,16 A6,6 0 1,1 6,16"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                          StrokeThickness="1.8"
+                                          Width="16"
+                                          Height="16"
+                                          Stretch="Uniform"
+                                          Margin="0,0,10,0" />
+                                    <TextBlock x:Name="NavInteractiveText" Text="Интерактив и объекты" VerticalAlignment="Center" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </RadioButton>
+
+                            <RadioButton x:Name="TabSystemBtn"
+                                         Style="{StaticResource NavTabStyle}"
+                                         Checked="OnNavTabChecked">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M12,8 A4,4 0 1,0 12,16 A4,4 0 1,0 12,8 M4,12 L2,12 M22,12 L20,12 M12,4 L12,2 M12,22 L12,20"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                          StrokeThickness="1.8"
+                                          Width="16"
+                                          Height="16"
+                                          Stretch="Uniform"
+                                          Margin="0,0,10,0" />
+                                    <TextBlock x:Name="NavSystemText" Text="Система" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </RadioButton>
+                        </StackPanel>
+
+                        <StackPanel VerticalAlignment="Bottom">
+                                                                       
+                            <Border Background="#B819202C"
+                                    BorderBrush="#293447"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="10,7"
+                                    Margin="0,0,0,8">
+                                <Grid>
+                                    <TextBlock x:Name="SidebarLangLabel"
+                                               Text="Язык:"
+                                               Foreground="#9CA3AF"
+                                               FontSize="11.5"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Left" />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                        <TextBlock Text="RU" Foreground="#E5E7EB" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center" />
+                                        <CheckBox x:Name="LanguageToggle"
+                                                  Style="{StaticResource FluentToggleStyle}"
+                                                  Margin="8,0,8,0"
+                                                  Click="OnToggleChanged" />
+                                        <TextBlock Text="EN" Foreground="#38BDF8" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                                                             
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="8,8"
+                                        Click="OnGitHubClick">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Path Data="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21V19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26V21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z"
+                                              Fill="#F3F4F6"
+                                              Width="14"
+                                              Height="14"
+                                              Stretch="Uniform"
+                                              Margin="0,0,6,0" />
+                                        <TextBlock Text="GitHub" FontSize="11.5" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+
+                                <Button Grid.Column="2"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="8,8"
+                                        Click="OnTelegramClick">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Path Data="M9.78,18.65L10.06,14.42L17.74,7.5C18.08,7.19 17.67,7.04 17.22,7.31L7.74,13.3L3.64,12C2.76,11.75 2.75,11.14 3.84,10.7L19.81,4.54C20.54,4.21 21.24,4.72 20.96,5.84L18.24,18.65C18.05,19.56 17.5,19.78 16.74,19.36L12.6,16.3L10.61,18.23C10.38,18.46 10.19,18.65 9.78,18.65Z"
+                                              Fill="#38BDF8"
+                                              Width="14"
+                                              Height="14"
+                                              Stretch="Uniform"
+                                              Margin="0,0,6,0" />
+                                        <TextBlock Text="Telegram" FontSize="11.5" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <Border Background="#B819202C"
+                                    BorderBrush="#293447"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="10">
+                                <StackPanel>
+                                    <TextBlock x:Name="HotkeysHeaderText" Text="Горячие клавиши:" Foreground="#9CA3AF" FontSize="11" />
+                                    <TextBlock x:Name="HotkeyPauseText" Text="Ctrl + Alt + S — Пауза" Foreground="#E5E7EB" FontSize="11.5" FontWeight="SemiBold" Margin="0,3,0,0" />
+                                    <TextBlock x:Name="HotkeyClearText" Text="Ctrl + Alt + C — Очистка" Foreground="#E5E7EB" FontSize="11.5" FontWeight="SemiBold" Margin="0,2,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <ScrollViewer Grid.Column="1"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Padding="20,16,20,16">
+                    <Grid>
+                        <StackPanel x:Name="WeatherPanel" Visibility="Visible">
+                            <TextBlock x:Name="WeatherHeaderTitle"
+                                       Text="Погода и физика снегопада"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       FontSize="16.5"
+                                       FontWeight="Bold"
+                                       Margin="0,0,0,12" />
+
+                            <TextBlock x:Name="PresetsSectionTitle" Text="ГОТОВЫЕ ШАБЛОНЫ" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" FontWeight="SemiBold" Margin="2,0,0,8" />
+                            <UniformGrid Columns="2" Margin="0,0,0,14">
+                                <RadioButton x:Name="PresetCozyRadio" GroupName="WeatherPresets" Style="{StaticResource PresetCardRadioStyle}" Margin="0,0,4,8" Checked="OnPresetChecked">
+                                    <StackPanel>
+                                        <TextBlock x:Name="PresetCozyTitle" Text="Уютный" Style="{StaticResource CardTitleStyle}" />
+                                        <TextBlock x:Name="PresetCozyDesc" Text="Редкие, неспешные хлопья." Style="{StaticResource CardDescStyle}" />
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton x:Name="PresetClassicRadio" GroupName="WeatherPresets" Style="{StaticResource PresetCardRadioStyle}" Margin="4,0,0,8" Checked="OnPresetChecked">
+                                    <StackPanel>
+                                        <TextBlock x:Name="PresetClassicTitle" Text="Классика" Style="{StaticResource CardTitleStyle}" />
+                                        <TextBlock x:Name="PresetClassicDesc" Text="Сбалансированный вариант." Style="{StaticResource CardDescStyle}" />
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton x:Name="PresetHeavyRadio" GroupName="WeatherPresets" Style="{StaticResource PresetCardRadioStyle}" Margin="0,0,4,0" Checked="OnPresetChecked">
+                                    <StackPanel>
+                                        <TextBlock x:Name="PresetHeavyTitle" Text="Снегопад" Style="{StaticResource CardTitleStyle}" />
+                                        <TextBlock x:Name="PresetHeavyDesc" Text="Плотный, но спокойный снег." Style="{StaticResource CardDescStyle}" />
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton x:Name="PresetCyberRadio" GroupName="WeatherPresets" Style="{StaticResource PresetCardRadioStyle}" Margin="4,0,0,0" Checked="OnPresetChecked">
+                                    <StackPanel>
+                                        <TextBlock x:Name="PresetCyberTitle" Text="Киберпанк" Style="{StaticResource CardTitleStyle}" />
+                                        <TextBlock x:Name="PresetCyberDesc" Text="Неоновые хлопья." Style="{StaticResource CardDescStyle}" />
+                                    </StackPanel>
+                                </RadioButton>
+                            </UniformGrid>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12"
+                                    Margin="0,0,0,10">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,3">
+                                        <TextBlock x:Name="ParticleCountTitle" Text="Количество снежинок" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" />
+                                        <TextBlock x:Name="ParticleCountLabel" Text="1200" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Slider x:Name="ParticleCountSlider"
+                                            Minimum="100"
+                                            Maximum="2500"
+                                            TickFrequency="50"
+                                            SmallChange="50"
+                                            LargeChange="200"
+                                            IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="OnSliderValueChanged"
+                                            Margin="0,0,0,9" />
+
+                                    <Grid Margin="0,0,0,3">
+                                        <TextBlock x:Name="SizeTitle" Text="Размер снежинок" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" />
+                                        <TextBlock x:Name="SizeLabel" Text="1.0x" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Slider x:Name="SizeSlider"
+                                            Minimum="0.5"
+                                            Maximum="2.5"
+                                            TickFrequency="0.1"
+                                            SmallChange="0.1"
+                                            LargeChange="0.3"
+                                            IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="OnSliderValueChanged"
+                                            Margin="0,0,0,9" />
+
+                                    <Grid Margin="0,0,0,3">
+                                        <TextBlock x:Name="SpeedTitle" Text="Скорость падения" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" />
+                                        <TextBlock x:Name="SpeedLabel" Text="1.0x" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Slider x:Name="SpeedSlider"
+                                            Minimum="0.3"
+                                            Maximum="3.0"
+                                            TickFrequency="0.1"
+                                            SmallChange="0.1"
+                                            LargeChange="0.3"
+                                            IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="OnSliderValueChanged"
+                                            Margin="0,0,0,9" />
+
+                                    <Grid Margin="0,0,0,3">
+                                        <TextBlock x:Name="WindTitle" Text="Сила ветра" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" />
+                                        <TextBlock x:Name="WindLabel" Text="1.0x" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Slider x:Name="WindSlider"
+                                            Minimum="0.0"
+                                            Maximum="4.0"
+                                            TickFrequency="0.1"
+                                            SmallChange="0.1"
+                                            LargeChange="0.5"
+                                            IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="OnSliderValueChanged"
+                                            Margin="0,0,0,9" />
+
+                                    <Grid Margin="0,0,0,3">
+                                        <TextBlock x:Name="WindIntervalTitle" Text="Частота смены порывов ветра" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" />
+                                        <TextBlock x:Name="WindIntervalLabel" Text="5.0 сек" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Slider x:Name="WindIntervalSlider"
+                                            Minimum="1.0"
+                                            Maximum="15.0"
+                                            TickFrequency="0.5"
+                                            SmallChange="0.5"
+                                            LargeChange="2.0"
+                                            IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="OnSliderValueChanged"
+                                            Margin="0,0,0,9" />
+
+                                    <Grid Margin="0,0,0,3">
+                                        <TextBlock x:Name="SwayTitle" Text="Амплитуда покачивания снежинок" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" />
+                                        <TextBlock x:Name="SwayLabel" Text="1.0x" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Slider x:Name="SwaySlider"
+                                            Minimum="0.0"
+                                            Maximum="2.5"
+                                            TickFrequency="0.1"
+                                            SmallChange="0.1"
+                                            LargeChange="0.3"
+                                            IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="OnSliderValueChanged"
+                                            Margin="0,0,0,9" />
+
+                                    <Grid Margin="0,0,0,3">
+                                        <TextBlock x:Name="SnowHeightTitle" Text="Максимальная высота сугробов" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" />
+                                        <TextBlock x:Name="SnowHeightLabel" Text="38 px" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Slider x:Name="SnowHeightSlider"
+                                            Minimum="10"
+                                            Maximum="95"
+                                            TickFrequency="1"
+                                            SmallChange="2"
+                                            LargeChange="10"
+                                            IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="OnSliderValueChanged"
+                                            Margin="0,0,0,9" />
+
+                                    <Grid Margin="0,0,0,3">
+                                        <TextBlock x:Name="AccumRateTitle" Text="Скорость накопления сугробов" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" />
+                                        <TextBlock x:Name="AccumRateLabel" Text="1.0x" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Slider x:Name="AccumRateSlider"
+                                            Minimum="0.2"
+                                            Maximum="3.0"
+                                            TickFrequency="0.1"
+                                            SmallChange="0.1"
+                                            LargeChange="0.3"
+                                            IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="OnSliderValueChanged" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12"
+                                    Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="BlizzardTitleText" Text="Режим «Метель / Вьюга»" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="BlizzardDescText" Text="Порывистый штормовой ветер и наклонная траектория снега" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,2,0,0" />
+                                    </StackPanel>
+                                    <CheckBox x:Name="BlizzardToggle"
+                                              Grid.Column="1"
+                                              Style="{StaticResource FluentToggleStyle}"
+                                              Click="OnToggleChanged" />
+                                </Grid>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12">
+                                <StackPanel>
+                                    <TextBlock x:Name="ThemePaletteTitle" Text="Стиль и палитра снега" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" Margin="0,0,0,10" />
+                                    <WrapPanel>
+                                        <RadioButton x:Name="ThemeWhiteRadio" GroupName="SnowTheme" Style="{StaticResource ColorSwatchStyle}" Checked="OnThemeRadioChecked">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Canvas Width="24" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Ellipse Width="12" Height="12" Canvas.Left="0" Canvas.Top="2" Fill="#FFFFFF" Stroke="#94A3B8" StrokeThickness="0.8" />
+                                                    <Ellipse Width="12" Height="12" Canvas.Left="6" Canvas.Top="2" Fill="#E2E8F0" Stroke="#64748B" StrokeThickness="0.8" />
+                                                    <Ellipse Width="12" Height="12" Canvas.Left="12" Canvas.Top="2" Fill="#CBD5E1" Stroke="#475569" StrokeThickness="0.8" />
+                                                </Canvas>
+                                                <TextBlock x:Name="ThemeWhiteText" Text="Классика" VerticalAlignment="Center" FontWeight="Medium" />
+                                            </StackPanel>
+                                        </RadioButton>
+
+                                        <RadioButton x:Name="ThemeNeonRadio" GroupName="SnowTheme" Style="{StaticResource ColorSwatchStyle}" Checked="OnThemeRadioChecked">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Canvas Width="24" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Ellipse Width="12" Height="12" Canvas.Left="0" Canvas.Top="2" Fill="#00F5FF" />
+                                                    <Ellipse Width="12" Height="12" Canvas.Left="6" Canvas.Top="2" Fill="#FF2AD4" />
+                                                    <Ellipse Width="12" Height="12" Canvas.Left="12" Canvas.Top="2" Fill="#A855F7" />
+                                                </Canvas>
+                                                <TextBlock x:Name="ThemeNeonText" Text="Киберпанк" VerticalAlignment="Center" FontWeight="Medium" />
+                                            </StackPanel>
+                                        </RadioButton>
+
+                                        <RadioButton x:Name="ThemeGoldRadio" GroupName="SnowTheme" Style="{StaticResource ColorSwatchStyle}" Checked="OnThemeRadioChecked">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Canvas Width="24" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Ellipse Width="12" Height="12" Canvas.Left="0" Canvas.Top="2" Fill="#FEF08A" />
+                                                    <Ellipse Width="12" Height="12" Canvas.Left="6" Canvas.Top="2" Fill="#FACC15" />
+                                                    <Ellipse Width="12" Height="12" Canvas.Left="12" Canvas.Top="2" Fill="#D97706" />
+                                                </Canvas>
+                                                <TextBlock x:Name="ThemeGoldText" Text="Золото" VerticalAlignment="Center" FontWeight="Medium" />
+                                            </StackPanel>
+                                        </RadioButton>
+
+                                        <RadioButton x:Name="ThemeConfettiRadio" GroupName="SnowTheme" Style="{StaticResource ColorSwatchStyle}" Checked="OnThemeRadioChecked">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Canvas Width="24" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <Ellipse Width="12" Height="12" Canvas.Left="0" Canvas.Top="2" Fill="#FF6384" />
+                                                    <Ellipse Width="12" Height="12" Canvas.Left="6" Canvas.Top="2" Fill="#36A2EB" />
+                                                    <Ellipse Width="12" Height="12" Canvas.Left="12" Canvas.Top="2" Fill="#4ADE80" />
+                                                </Canvas>
+                                                <TextBlock x:Name="ThemeConfettiText" Text="Конфетти" VerticalAlignment="Center" FontWeight="Medium" />
+                                            </StackPanel>
+                                        </RadioButton>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel x:Name="InteractivePanel" Visibility="Collapsed">
+                            <TextBlock x:Name="InteractiveHeaderTitle"
+                                       Text="Интерактив и физика объектов"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       FontSize="16.5"
+                                       FontWeight="Bold"
+                                       Margin="0,0,0,12" />
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12"
+                                    Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="CraftingTitleText" Text="Лепка снежков и снеговиков (ЛКМ / ПКМ)" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="CraftingDescText" Text="ЛКМ по сугробу — скатать ком, соединить 2–3 кома — снеговик. ПКМ — разбить объект в снежинки."
+                                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                    </StackPanel>
+                                    <CheckBox x:Name="CraftingToggle"
+                                              Grid.Column="1"
+                                              Style="{StaticResource FluentToggleStyle}"
+                                              Click="OnToggleChanged" />
+                                </Grid>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12"
+                                    Margin="0,0,0,10"
+                                    MouseLeftButtonDown="OnLivingSnowmenCardClick">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="LivingSnowmenTitleText" Text="Живые снеговики (битва снежками)" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="LivingSnowmenDescText" Text="Если слепить 2 или более снеговиков, они начинают перекидываться снежками друг в друга" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                    </StackPanel>
+                                    <CheckBox x:Name="LivingSnowmenToggle"
+                                              Grid.Column="1"
+                                              Style="{StaticResource FluentToggleStyle}"
+                                              Click="OnToggleChanged" />
+                                </Grid>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12"
+                                    Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="WindowShakeTitleText" Text="Стряхивание сугробов при резкой тряске окна" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="WindowShakeDescText" Text="Если резко потрясти окно из стороны в сторону, сугроб сорвется лавиной" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                    </StackPanel>
+                                    <CheckBox x:Name="WindowShakeToggle"
+                                              Grid.Column="1"
+                                              Style="{StaticResource FluentToggleStyle}"
+                                              Click="OnToggleChanged" />
+                                </Grid>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12"
+                                    Margin="0,0,0,10">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" x:Name="ShakeThresholdTitle" Text="Сила тряски, нужная чтобы стряхнуть снег с окна" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" TextWrapping="Wrap" />
+                                        <TextBlock Grid.Column="1" x:Name="ShakeThresholdLabel" Text="Обычная (1.0x)" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Right" Margin="10,0,0,0" />
+                                    </Grid>
+                                    <Slider x:Name="ShakeThresholdSlider"
+                                            Minimum="0.3"
+                                            Maximum="3.0"
+                                            TickFrequency="0.1"
+                                            SmallChange="0.1"
+                                            LargeChange="0.4"
+                                            IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="OnSliderValueChanged" />
+                                    <TextBlock x:Name="ShakeThresholdHintText" Text="Меньше — снег слетает от лёгкого встряхивания, больше — окно нужно трясти резко и сильно" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,6,0,0" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12"
+                                    Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="ScreenEffectsTitleText" Text="Реалистичные следы от снежков и снеговиков на экране" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="ScreenEffectsDescText" Text="Сильный удар снежка или снеговика оставляет реалистичную тающую кляксу со стекающими каплями" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                    </StackPanel>
+                                    <CheckBox x:Name="ScreenEffectsToggle"
+                                              Grid.Column="1"
+                                              Style="{StaticResource FluentToggleStyle}"
+                                              Click="OnToggleChanged" />
+                                </Grid>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12"
+                                    Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="CursorScatterTitleText" Text="Реакция снега и сугробов на движение мыши" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="CursorScatterDescText" Text="Быстрое движение курсора развеивает падающие снежинки и сдувает верхушки сугробов" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                    </StackPanel>
+                                    <CheckBox x:Name="CursorScatterToggle"
+                                              Grid.Column="1"
+                                              Style="{StaticResource FluentToggleStyle}"
+                                              Click="OnToggleChanged" />
+                                </Grid>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12"
+                                    Margin="0,0,0,10">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,3">
+                                        <TextBlock x:Name="CursorPowerTitle" Text="Радиус и сила сдувания снега курсором" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" />
+                                        <TextBlock x:Name="CursorPowerLabel" Text="0.5x" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Slider x:Name="CursorPowerSlider"
+                                            Minimum="0.5"
+                                            Maximum="2.5"
+                                            TickFrequency="0.1"
+                                            SmallChange="0.1"
+                                            LargeChange="0.3"
+                                            IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="OnSliderValueChanged"
+                                            Margin="0,0,0,10" />
+
+                                    <Grid Margin="0,0,0,3">
+                                        <TextBlock x:Name="GravityTitle" Text="Гравитация снежков и снеговиков" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" />
+                                        <TextBlock x:Name="GravityLabel" Text="1.0x" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Slider x:Name="GravitySlider"
+                                            Minimum="0.5"
+                                            Maximum="2.0"
+                                            TickFrequency="0.1"
+                                            SmallChange="0.1"
+                                            LargeChange="0.3"
+                                            IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="OnSliderValueChanged"
+                                            Margin="0,0,0,10" />
+
+                                    <Grid Margin="0,0,0,3">
+                                        <TextBlock x:Name="ToughnessTitle" Text="Прочность снежков при ударах о стены и окна" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" />
+                                        <TextBlock x:Name="ToughnessLabel" Text="Обычные (1.0x)" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Slider x:Name="ToughnessSlider"
+                                            Minimum="0.4"
+                                            Maximum="3.0"
+                                            TickFrequency="0.1"
+                                            SmallChange="0.1"
+                                            LargeChange="0.4"
+                                            IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="OnSliderValueChanged" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12"
+                                    Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="OcclusionTitleText" Text="Верхние окна закрывают нижние от падающего снега" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="OcclusionDescText" Text="Верхние окна работают как крыша и закрывают нижние от снега" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                    </StackPanel>
+                                    <CheckBox x:Name="OcclusionToggle"
+                                              Grid.Column="1"
+                                              Style="{StaticResource FluentToggleStyle}"
+                                              Click="OnToggleChanged" />
+                                </Grid>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12"
+                                    Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="KeepHiddenSnowTitleText" Text="Сохранять сугробы при сворачивании окон" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="KeepHiddenSnowDescText" Text="Если свернуть или скрыть окно, снег и снеговики вернутся на него при разворачивании" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                    </StackPanel>
+                                    <CheckBox x:Name="KeepHiddenSnowToggle"
+                                              Grid.Column="1"
+                                              Style="{StaticResource FluentToggleStyle}"
+                                              Click="OnToggleChanged" />
+                                </Grid>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12"
+                                    Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="TaskbarSnowTitleText" Text="Накапливать снег на панели задач Windows" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="TaskbarSnowDescText" Text="Формирует сугробы вдоль нижней панели задач экрана" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                    </StackPanel>
+                                    <CheckBox x:Name="TaskbarSnowToggle"
+                                              Grid.Column="1"
+                                              Style="{StaticResource FluentToggleStyle}"
+                                              Click="OnToggleChanged" />
+                                </Grid>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="FullscreenPauseTitleText" Text="Автопауза в полноэкранных играх и видео" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="FullscreenPauseDescText" Text="Скрывает оверлей и останавливает симуляцию при запуске полноэкранных игр" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0" />
+                                    </StackPanel>
+                                    <CheckBox x:Name="FullscreenPauseToggle"
+                                              Grid.Column="1"
+                                              Style="{StaticResource FluentToggleStyle}"
+                                              Click="OnToggleChanged" />
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel x:Name="SystemPanel" Visibility="Collapsed">
+                            <TextBlock x:Name="SystemHeaderTitle"
+                                       Text="Системные параметры и управление"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       FontSize="16.5"
+                                       FontWeight="Bold"
+                                       Margin="0,0,0,12" />
+
+                                                                
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,14"
+                                    Margin="0,0,0,12">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock x:Name="AutoUpdateTitleText" Text="Автообновление через GitHub" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                            <TextBlock x:Name="AutoUpdateDescText" Text="Проверять наличие новых релизов при запуске приложения" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                        </StackPanel>
+                                        <CheckBox x:Name="AutoUpdateToggle"
+                                                  Grid.Column="1"
+                                                  Style="{StaticResource FluentToggleStyle}"
+                                                  Click="OnToggleChanged" />
+                                    </Grid>
+                                    <Grid Margin="0,10,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock x:Name="UpdateStatusText"
+                                                   Text="Текущая версия: v1.0.0"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   FontSize="11.5"
+                                                   VerticalAlignment="Center" />
+                                        <Button x:Name="CheckUpdateBtn"
+                                                Grid.Column="1"
+                                                Padding="12,6"
+                                                FontSize="11.5"
+                                                Style="{StaticResource ActionButtonStyle}"
+                                                Click="OnCheckUpdateClick">
+                                            <TextBlock x:Name="CheckUpdateBtnText" Text="Проверить обновления" />
+                                        </Button>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,14"
+                                    Margin="0,0,0,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="AutoStartTitleText" Text="Запускать автоматически вместе с Windows" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="AutoStartDescText" Text="Добавляет приложение в автозагрузку текущего пользователя Windows" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                    <CheckBox x:Name="AutoStartToggle"
+                                              Grid.Column="1"
+                                              Style="{StaticResource FluentToggleStyle}"
+                                              Click="OnAutoStartToggleClicked" />
+                                </Grid>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,14"
+                                    Margin="0,0,0,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="UiAnimationsTitleText" Text="Анимации интерфейса" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="UiAnimationsDescText" Text="Плавные переходы кнопок, переключателей, вкладок и окон. Отключите, если нужен мгновенный отклик" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                    <CheckBox x:Name="UiAnimationsToggle"
+                                              Grid.Column="1"
+                                              Style="{StaticResource FluentToggleStyle}"
+                                              Click="OnToggleChanged" />
+                                </Grid>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,14"
+                                    Margin="0,0,0,12">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock x:Name="PowerSavingTitleText" Text="Умный режим энергосбережения (Adaptive FPS)" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                            <TextBlock x:Name="PowerSavingDescText" Text="Плавные 60 FPS во время активности и снижение до 15 FPS при простое" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                        </StackPanel>
+                                        <CheckBox x:Name="PowerSavingToggle"
+                                                  Grid.Column="1"
+                                                  Style="{StaticResource FluentToggleStyle}"
+                                                  Click="OnToggleChanged" />
+                                    </Grid>
+
+                                    <Grid Margin="0,0,0,4">
+                                        <TextBlock x:Name="PowerTimeoutTitle" Text="Таймер перехода в режим сна" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12.5" />
+                                        <TextBlock x:Name="PowerTimeoutLabel" Text="60 сек" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Slider x:Name="PowerTimeoutSlider"
+                                            Minimum="15"
+                                            Maximum="180"
+                                            TickFrequency="5"
+                                            SmallChange="5"
+                                            LargeChange="15"
+                                            IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="OnSliderValueChanged" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="{StaticResource CardBgBrush}"
+                                    BorderBrush="{StaticResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="16,14"
+                                    Margin="0,0,0,16">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="HotkeysCardTitleText" Text="Глобальные горячие клавиши" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock x:Name="HotkeysCardDescText" Text="Ctrl + Alt + S (пауза/возобновление) и Ctrl + Alt + C (очистить весь снег)" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                    <CheckBox x:Name="HotkeysToggle"
+                                              Grid.Column="1"
+                                              Style="{StaticResource FluentToggleStyle}"
+                                              Click="OnToggleChanged" />
+                                </Grid>
+                            </Border>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0"
+                                        Padding="8,10"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Click="OnClearAllSnowClick">
+                                    <TextBlock x:Name="ClearAllSnowBtnText" Text="Очистить весь снег" TextWrapping="Wrap" TextAlignment="Center" />
+                                </Button>
+                                <Button Grid.Column="2"
+                                        Padding="8,10"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Click="OnClearSnowmenOnlyClick">
+                                    <TextBlock x:Name="ClearSnowmenBtnText" Text="Удалить снеговиков" TextWrapping="Wrap" TextAlignment="Center" />
+                                </Button>
+                                <Button Grid.Column="4"
+                                        Padding="8,10"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Click="OnResetDefaultsClick">
+                                    <TextBlock x:Name="ResetDefaultsBtnText" Text="Сбросить настройки" TextWrapping="Wrap" TextAlignment="Center" />
+                                </Button>
+                            </Grid>
+
+                            <Button Margin="0,10,0,0"
+                                    Padding="12,10"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Click="OnShowWelcomeClick">
+                                <TextBlock x:Name="ShowWelcomeBtnText" Text="Показать обучение (мастер первого запуска)" TextWrapping="Wrap" TextAlignment="Center" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

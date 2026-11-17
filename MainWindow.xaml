@@ -1,0 +1,17 @@
+﻿<Window x:Class="Frosty.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Frosty"
+        WindowStyle="None"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        ResizeMode="NoResize"
+        Focusable="False"
+        Width="1"
+        Height="1"
+        Left="-32000"
+        Top="-32000">
+                                                                                            
+                                                       
+    <Grid />
+</Window>
