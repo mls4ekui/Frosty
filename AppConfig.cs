@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -51,70 +51,81 @@ public static class Loc
 
 public static class AppIcon
 {
-    private static ImageSource? _wpfIcon;
+    // Должно совпадать с <LogicalName> в Frosty.csproj. Ресурс вшит в сборку,
+    // поэтому одинаково читается и из обычной сборки, и из PublishSingleFile
+    // (никаких путей к файлам и Assembly.Location).
+    private const string ResourceName = "Frosty.Assets.Frosty.ico";
 
-    public static ImageSource WpfIcon
+    private static readonly object Sync = new();
+    private static byte[]? _iconBytes;
+    private static BitmapFrame[]? _frames;
+
+    private static byte[] ReadIconBytes()
     {
-        get
-        {
-            if (_wpfIcon != null) return _wpfIcon;
+        if (_iconBytes != null) return _iconBytes;
 
-            var (icon, handle) = CreateIcon(128);
-            try
+        using var stream = typeof(AppIcon).Assembly.GetManifestResourceStream(ResourceName)
+            ?? throw new InvalidOperationException("Не удалось загрузить ресурс Frosty.ico.");
+        using var ms = new MemoryStream();
+        stream.CopyTo(ms);
+        _iconBytes = ms.ToArray();
+        return _iconBytes;
+    }
+
+    // Все кадры .ico (16/24/32/48/64/128/256), декодируются один раз на всё приложение.
+    private static BitmapFrame[] GetFrames()
+    {
+        lock (Sync)
+        {
+            if (_frames != null) return _frames;
+
+            var decoder = BitmapDecoder.Create(
+                new MemoryStream(ReadIconBytes(), writable: false),
+                BitmapCreateOptions.PreservePixelFormat,
+                BitmapCacheOption.OnLoad);
+
+            var frames = decoder.Frames.ToArray();
+            foreach (var f in frames)
             {
-                var src = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                src.Freeze();
-                _wpfIcon = src;
+                if (f.CanFreeze) f.Freeze();
             }
-            finally
-            {
-                icon.Dispose();
-                if (handle != IntPtr.Zero) NativeMethods.DestroyIcon(handle);
-            }
-            return _wpfIcon;
+
+            _frames = frames;
+            return _frames;
         }
+    }
+
+    /// <summary>
+    /// Для <see cref="System.Windows.Window.Icon"/>. Кадр принадлежит декодеру .ico,
+    /// поэтому WPF сам подбирает из него нужные размеры для заголовка, панели задач и Alt+Tab.
+    /// </summary>
+    public static ImageSource WpfIcon => GetFrames()[0];
+
+    /// <summary>
+    /// Для <see cref="System.Windows.Controls.Image.Source"/> внутри интерфейса:
+    /// берёт наименьший кадр, который не меньше запрошенного размера в физических пикселях
+    /// (иначе — самый большой), чтобы логотип не был размытым и не растягивался.
+    /// </summary>
+    public static ImageSource GetLogo(int pixelSize)
+    {
+        var frames = GetFrames();
+        BitmapFrame? best = null;
+        BitmapFrame? largest = null;
+
+        foreach (var f in frames)
+        {
+            if (largest == null || f.PixelWidth > largest.PixelWidth) largest = f;
+            if (f.PixelWidth >= pixelSize && (best == null || f.PixelWidth < best.PixelWidth)) best = f;
+        }
+
+        return best ?? largest ?? frames[0];
     }
 
     public static (Icon Icon, IntPtr Handle) CreateIcon(int size)
     {
-        using var bmp = new Bitmap(size, size);
-        using (Graphics g = Graphics.FromImage(bmp))
-        {
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.Clear(System.Drawing.Color.Transparent);
-            g.ScaleTransform(size / 32f, size / 32f);
-
-            using var bgBrush = new SolidBrush(System.Drawing.Color.FromArgb(240, 20, 30, 48));
-            g.FillEllipse(bgBrush, 1, 1, 30, 30);
-
-            using var borderPen = new System.Drawing.Pen(System.Drawing.Color.FromArgb(220, 56, 189, 248), 1.5f);
-            g.DrawEllipse(borderPen, 1.5f, 1.5f, 29f, 29f);
-
-            using var pen = new System.Drawing.Pen(System.Drawing.Color.FromArgb(255, 125, 211, 252), 2.2f)
-            {
-                StartCap = LineCap.Round,
-                EndCap = LineCap.Round
-            };
-
-            float cx = 16f, cy = 16f, r = 9.5f;
-            for (int i = 0; i < 6; i++)
-            {
-                float angle = i * MathF.PI / 3f;
-                g.DrawLine(pen, cx, cy, cx + MathF.Cos(angle) * r, cy + MathF.Sin(angle) * r);
-
-                float bx = cx + MathF.Cos(angle) * (r * 0.58f);
-                float by = cy + MathF.Sin(angle) * (r * 0.58f);
-                float a1 = angle + 0.55f;
-                float a2 = angle - 0.55f;
-
-                g.DrawLine(pen, bx, by, bx + MathF.Cos(a1) * 3.2f, by + MathF.Sin(a1) * 3.2f);
-                g.DrawLine(pen, bx, by, bx + MathF.Cos(a2) * 3.2f, by + MathF.Sin(a2) * 3.2f);
-            }
-        }
-
-        IntPtr hIcon = bmp.GetHicon();
-        Icon icon = (Icon)Icon.FromHandle(hIcon).Clone();
-        return (icon, hIcon);
+        using var stream = new MemoryStream(ReadIconBytes(), writable: false);
+        var icon = new Icon(stream);
+        return ((Icon)icon.Clone(), IntPtr.Zero);
     }
 }
 

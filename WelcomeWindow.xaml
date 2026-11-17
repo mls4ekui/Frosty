@@ -42,10 +42,7 @@
                     MouseLeftButtonDown="OnTitleBarDrag">
                 <Grid Margin="18,0,10,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Path Data="M12,2 L12,22 M3.34,7 L20.66,17 M3.34,17 L20.66,7"
-                              Stroke="#38BDF8" StrokeThickness="2.2"
-                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                              Width="18" Height="18" Stretch="Uniform" Margin="0,0,10,0" />
+                        <local:AppLogoImage Width="18" Height="18" Margin="0,0,10,0" />
                         <TextBlock x:Name="HeaderTitleText"
                                    Text="Первоначальная настройка Frosty"
                                    Foreground="#FFFFFF" FontWeight="Bold" FontSize="14.5" VerticalAlignment="Center" />
