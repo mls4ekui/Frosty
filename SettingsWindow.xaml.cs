@@ -102,7 +102,7 @@ public partial class SettingsWindow : Window
             int dark = 1;
             NativeMethods.DwmSetWindowAttribute(hwnd, NativeMethods.DWMWA_USE_IMMERSIVE_DARK_MODE, ref dark, sizeof(int));
 
-            int cornerPref = NativeMethods.DWMWCP_ROUND;
+            int cornerPref = NativeMethods.DWMWCP_DONOTROUND;
             NativeMethods.DwmSetWindowAttribute(hwnd, NativeMethods.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPref, sizeof(int));
 
             int backdrop = NativeMethods.DWMSBT_TRANSIENTWINDOW;
@@ -123,8 +123,8 @@ public partial class SettingsWindow : Window
 
         SidebarLangLabel.Text = Loc.Tr("Язык:", "Language:");
         HotkeysHeaderText.Text = Loc.Tr("Горячие клавиши:", "Hotkeys:");
-        HotkeyPauseText.Text = Loc.Tr("Ctrl + Alt + S — Пауза", "Ctrl + Alt + S — Pause");
-        HotkeyClearText.Text = Loc.Tr("Ctrl + Alt + C — Очистка", "Ctrl + Alt + C — Clear");
+        HotkeyPauseText.Text = Loc.Tr("Ctrl + Alt + S – Пауза", "Ctrl + Alt + S – Pause");
+        HotkeyClearText.Text = Loc.Tr("Ctrl + Alt + C – Очистка", "Ctrl + Alt + C – Clear");
 
         WeatherHeaderTitle.Text = Loc.Tr("Погода и физика снегопада", "Snowfall Weather & Physics");
         PresetsSectionTitle.Text = Loc.Tr("ГОТОВЫЕ ШАБЛОНЫ", "PRESETS");
@@ -158,7 +158,7 @@ public partial class SettingsWindow : Window
 
         InteractiveHeaderTitle.Text = Loc.Tr("Интерактив и физика объектов", "Interactive & Object Physics");
         CraftingTitleText.Text = Loc.Tr("Лепка снежков и снеговиков (ЛКМ / ПКМ)", "Craft snowballs & snowmen (LMB / RMB)");
-        CraftingDescText.Text = Loc.Tr("ЛКМ по сугробу — скатать ком, соединить 2–3 кома — снеговик. ПКМ — разбить объект в снежинки.", "LMB on a drift to roll a snowball, stack 2–3 balls to build a snowman. RMB to shatter.");
+        CraftingDescText.Text = Loc.Tr("ЛКМ по сугробу – скатать ком, соединить 2–3 кома – снеговик. ПКМ – разбить объект в снежинки.", "LMB on a drift to roll a snowball, stack 2–3 balls to build a snowman. RMB to shatter.");
 
         UpdateLivingSnowmenTitle();
         LivingSnowmenDescText.Text = Loc.Tr("Если слепить 2 или более снеговиков, они начинают перекидываться снежками друг в друга", "When 2 or more snowmen are built, they start a snowball fight with each other");
@@ -166,7 +166,7 @@ public partial class SettingsWindow : Window
         WindowShakeTitleText.Text = Loc.Tr("Стряхивание сугробов при резкой тряске окна", "Shed snowdrifts by shaking windows");
         WindowShakeDescText.Text = Loc.Tr("Если резко потрясти окно из стороны в сторону, сугроб сорвется лавиной", "Shake a window rapidly side to side to trigger a snow avalanche");
         ShakeThresholdTitle.Text = Loc.Tr("Сила тряски, нужная чтобы стряхнуть снег с окна", "Window shake force required to shed snow");
-        ShakeThresholdHintText.Text = Loc.Tr("Меньше — снег слетает от лёгкого встряхивания, больше — окно нужно трясти резко и сильно", "Lower — snow falls off with a gentle shake; higher — requires a strong shake");
+        ShakeThresholdHintText.Text = Loc.Tr("Меньше – снег слетает от лёгкого встряхивания, больше – окно нужно трясти резко и сильно", "Lower – snow falls off with a gentle shake; higher – requires a strong shake");
 
         ScreenEffectsTitleText.Text = Loc.Tr("Реалистичные следы от снежков и снеговиков на экране", "Realistic snowball splatters on screen");
         ScreenEffectsDescText.Text = Loc.Tr("Сильный удар снежка или снеговика оставляет реалистичную тающую кляксу со стекающими каплями", "Hard throws leave a melting snow splatter with dripping droplets on screen");

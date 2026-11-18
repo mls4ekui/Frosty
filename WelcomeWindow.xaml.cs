@@ -8,18 +8,14 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+using Rectangle = System.Windows.Shapes.Rectangle;
 
 namespace Frosty;
 
-             
-                                                                                                   
-                                                                                                   
-                                                                  
-              
 public partial class WelcomeWindow : Window
 {
     private const int TotalSteps = 5;
-    private const int FirstSettingsStep = 2;                                              
+    private const int FirstSettingsStep = 2;
 
     private readonly AppSettings _live;
     private readonly AppSettings _settings;
@@ -33,10 +29,10 @@ public partial class WelcomeWindow : Window
     private int _currentStep;
 
     private readonly FrameworkElement[] _stepPanels;
-    private readonly Ellipse[] _dots = new Ellipse[TotalSteps];
+    private readonly Rectangle[] _dots = new Rectangle[TotalSteps];
 
     private static readonly System.Windows.Media.Color ActiveColor = System.Windows.Media.Color.FromRgb(56, 189, 248);
-    private static readonly System.Windows.Media.Color InactiveColor = System.Windows.Media.Color.FromRgb(71, 85, 105);
+    private static readonly System.Windows.Media.Color InactiveColor = System.Windows.Media.Color.FromRgb(34, 48, 71);
 
     private sealed record SliderBinding(
         Slider Slider,
@@ -64,7 +60,7 @@ public partial class WelcomeWindow : Window
 
         for (int i = 0; i < TotalSteps; i++)
         {
-            var dot = new Ellipse
+            var dot = new Rectangle
             {
                 Width = 8,
                 Height = 8,
@@ -90,8 +86,6 @@ public partial class WelcomeWindow : Window
     public WelcomeWindow() : this(new AppSettings(), _ => { })
     {
     }
-
-                                                                                 
 
     private void RegisterSliders()
     {
@@ -141,7 +135,7 @@ public partial class WelcomeWindow : Window
             int dark = 1;
             NativeMethods.DwmSetWindowAttribute(hwnd, NativeMethods.DWMWA_USE_IMMERSIVE_DARK_MODE, ref dark, sizeof(int));
 
-            int cornerPref = NativeMethods.DWMWCP_ROUND;
+            int cornerPref = NativeMethods.DWMWCP_DONOTROUND;
             NativeMethods.DwmSetWindowAttribute(hwnd, NativeMethods.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPref, sizeof(int));
 
             int backdrop = NativeMethods.DWMSBT_TRANSIENTWINDOW;
@@ -152,15 +146,12 @@ public partial class WelcomeWindow : Window
         }
     }
 
-                                                                               
-
     public void ApplyLocalization()
     {
         Title = Loc.Tr("Мастер настройки Frosty", "Frosty Setup Wizard");
         HeaderTitleText.Text = Loc.Tr("Первоначальная настройка Frosty", "Frosty Initial Setup");
 
-                
-        S1Title.Text = Loc.Tr("Добро пожаловать в Frosty ❄️", "Welcome to Frosty ❄️");
+        S1Title.Text = Loc.Tr("Добро пожаловать в Frosty", "Welcome to Frosty");
         S1Sub.Text = Loc.Tr(
             "Живой снегопад прямо на рабочем столе. За минуту познакомимся и настроим всё под вас.",
             "Interactive snowfall right on your desktop. Let's take a minute to set everything up for you.");
@@ -170,44 +161,42 @@ public partial class WelcomeWindow : Window
             "Snowflakes fall across your desktop, land on window title bars and the taskbar, and form real snowdrifts.");
         S1C2Title.Text = Loc.Tr("Не мешает работе", "Never gets in your way");
         S1C2Desc.Text = Loc.Tr(
-            "Снег не перехватывает клики: окна, ярлыки и игры работают как обычно. В полноэкранных играх снегопад сам уходит на паузу.",
-            "Snow is click-through: windows, icons, and apps work as usual. In fullscreen games, snowfall pauses automatically.");
+            "Окна, ярлыки и программы работают как обычно. В полноэкранных играх снегопад сам уходит на паузу.",
+            "Windows, icons, and apps work as usual. In fullscreen games, snowfall pauses automatically.");
         S1C3Title.Text = Loc.Tr("Живёт в системном трее", "Lives in the system tray");
         S1C3Desc.Text = Loc.Tr(
-            "Иконка-снежинка возле часов открывает настройки. Ctrl+Alt+S — пауза, Ctrl+Alt+C — очистить весь снег.",
-            "Click the snowflake icon near the clock to open settings. Ctrl+Alt+S — pause, Ctrl+Alt+C — clear all snow.");
+            "Иконка возле часов открывает настройки. Ctrl+Alt+S – пауза, Ctrl+Alt+C – очистить весь снег.",
+            "Click the tray icon near the clock to open settings. Ctrl+Alt+S – pause, Ctrl+Alt+C – clear all snow.");
         S1C4Title.Text = Loc.Tr("Всё видно в окне справа", "Live preview on the right");
         S1C4Desc.Text = Loc.Tr(
             "Пока открыт мастер, снег идёт только в окне предпросмотра. На рабочий стол он выйдет, когда вы нажмёте «Готово».",
             "While the wizard is open, snow falls only in the preview box. It will appear on your desktop once you click Done.");
 
-                
         S2Title.Text = Loc.Tr("Как играть со снегом", "How to interact with snow");
         S2Sub.Text = Loc.Tr(
-            "Снег — не просто картинка. С ним можно взаимодействовать. Попробуйте прямо в окне предпросмотра справа.",
-            "Snow isn't just a static overlay — you can play with it. Try it right now in the preview box on the right.");
+            "Снег – не просто картинка. С ним можно взаимодействовать. Попробуйте прямо в окне предпросмотра справа.",
+            "Snow isn't just a static overlay – you can play with it. Try it right now in the preview box on the right.");
         S2C1Title.Text = Loc.Tr("Снежки и снеговики", "Snowballs & snowmen");
         S2C1Desc.Text = Loc.Tr(
-            "Зажмите левую кнопку мыши на сугробе и потяните — слепится снежок. Если катать его дальше, он вырастет в снеговика.",
+            "Зажмите левую кнопку мыши на сугробе и потяните – слепится снежок. Сложите 2–3 кома вместе – получится снеговик.",
             "Hold LMB on a snowdrift and drag to roll a snowball. Stack 2–3 snowballs together to build a snowman.");
         S2C2Title.Text = Loc.Tr("Разгоните снег курсором", "Scatter snow with your cursor");
         S2C2Desc.Text = Loc.Tr(
-            "Проведите мышью сквозь падающие хлопья — они разлетятся в стороны.",
+            "Проведите мышью сквозь падающие хлопья – они разлетятся в стороны.",
             "Move your mouse quickly through falling snowflakes to scatter them around.");
         S2C3Title.Text = Loc.Tr("Снег стряхивается", "Shake windows to shed snow");
         S2C3Desc.Text = Loc.Tr(
-            "Если резко потрясти окно, снег с него осыплется вниз. Брошенные снежки оставляют пятна на экране.",
+            "Если резко потрясти окно, снег с него осыплется вниз. Брошенные снежки оставляют следы на экране.",
             "Shake a window rapidly side to side to shed its snowdrift. Thrown snowballs leave melting splatters on screen.");
         S2C4Title.Text = Loc.Tr("Всё это настраивается", "Everything is customizable");
         S2C4Desc.Text = Loc.Tr(
-            "На следующих шагах вы выберете внешний вид, физику и поведение — и сразу увидите результат.",
-            "In the next steps you'll choose the look, physics, and behavior — and see the result right away.");
+            "На следующих шагах вы выберете внешний вид, физику и поведение – и сразу увидите результат.",
+            "In the next steps you'll choose the look, physics, and behavior – and see the result right away.");
 
-                
         S3Title.Text = Loc.Tr("Погода и внешний вид", "Weather & Appearance");
         S3Sub.Text = Loc.Tr(
-            "Выберите пресет и подкрутите детали — предпросмотр обновляется мгновенно.",
-            "Pick a preset and fine-tune the details — the preview updates in real time.");
+            "Выберите пресет и подкрутите детали – предпросмотр обновляется мгновенно.",
+            "Pick a preset and fine-tune the details – the preview updates in real time.");
         S3PresetHdr.Text = Loc.Tr("ПРЕСЕТ", "PRESET");
         WPresetCozyTitle.Text = Loc.Tr("Уютный", "Cozy");
         WPresetCozyDesc.Text = Loc.Tr("Редкие, неспешные хлопья.", "Gentle, slow snowflakes.");
@@ -230,7 +219,6 @@ public partial class WelcomeWindow : Window
         WSpeedLbl.Text = Loc.Tr("Скорость падения", "Fall speed");
         WWindLbl.Text = Loc.Tr("Сила ветра", "Wind strength");
 
-                
         S4Title.Text = Loc.Tr("Сугробы и физика", "Snowdrifts & Physics");
         S4Sub.Text = Loc.Tr(
             "Как снег копится и как реагирует на вас. Попробуйте потрогать его в предпросмотре.",
@@ -250,9 +238,8 @@ public partial class WelcomeWindow : Window
         WScatterPowLbl.Text = Loc.Tr("Сила разлёта", "Scatter power");
         WGravityLbl.Text = Loc.Tr("Гравитация предметов", "Object gravity");
         WShakeTitle.Text = Loc.Tr("Стряхивание снега с окон", "Shed snow by shaking windows");
-        WShakeDesc.Text = Loc.Tr("Встряхните окно — снег с него осыплется.", "Shake a window to make snowdrifts crumble down.");
+        WShakeDesc.Text = Loc.Tr("Встряхните окно – снег с него осыплется.", "Shake a window to make snowdrifts crumble down.");
 
-                
         S5Title.Text = Loc.Tr("Поведение и система", "Behavior & System");
         S5Sub.Text = Loc.Tr(
             "Последний шаг. Эти параметры действуют на рабочем столе (в предпросмотре виден только снег на панели задач).",
@@ -268,9 +255,8 @@ public partial class WelcomeWindow : Window
         WAnimTitle.Text = Loc.Tr("Анимации интерфейса", "Interface animations");
         WAnimDesc.Text = Loc.Tr("Плавные переходы кнопок, переключателей и окон. Можно отключить в любой момент.", "Smooth transitions for buttons, toggles, and windows.");
         WAutoStartTitle.Text = Loc.Tr("Запускать вместе с Windows", "Launch with Windows");
-        WAutoStartDesc.Text = Loc.Tr("Frosty будет стартовать в системном трее. Настройки всегда открываются кликом по снежинке.", "Frosty will start in the system tray on boot.");
+        WAutoStartDesc.Text = Loc.Tr("Frosty будет стартовать в системном трее. Настройки всегда открываются кликом по иконке.", "Frosty will start in the system tray on boot.");
 
-                       
         PreviewBadgeText.Text = Loc.Tr("ПРЕДПРОСМОТР", "LIVE PREVIEW");
         PreviewHintText.Text = Loc.Tr(
             "Лепите снежки зажатой кнопкой мыши, водите курсором сквозь снег.",
@@ -292,8 +278,6 @@ public partial class WelcomeWindow : Window
         _live.IsEnglishLanguage = isEn;
         Loc.SetLanguage(isEn);
     }
-
-                                                                                                  
 
     private void SyncControlsFromSettings()
     {
@@ -368,8 +352,6 @@ public partial class WelcomeWindow : Window
         ApplyToPreview();
     }
 
-                                                                                        
-
     private void OnPresetRadioChecked(object sender, RoutedEventArgs e)
     {
         if (_isSyncing || !IsLoaded) return;
@@ -438,8 +420,6 @@ public partial class WelcomeWindow : Window
         Preview.ClearSnow();
     }
 
-                                                                        
-
     private void ShowStep(int step, int direction)
     {
         _currentStep = step;
@@ -471,26 +451,23 @@ public partial class WelcomeWindow : Window
         for (int i = 0; i < TotalSteps; i++)
         {
             bool active = i == _currentStep;
-            double size = active ? 12 : 8;
+            double width = active ? 18 : 8;
             System.Windows.Media.Color color = active ? ActiveColor : InactiveColor;
-            Ellipse dot = _dots[i];
+            Rectangle dot = _dots[i];
             var brush = (SolidColorBrush)dot.Fill;
 
             if (Motion.Enabled && IsLoaded)
             {
                 var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
                 var dur = new Duration(TimeSpan.FromMilliseconds(200));
-                dot.BeginAnimation(WidthProperty, new DoubleAnimation(size, dur) { EasingFunction = ease });
-                dot.BeginAnimation(HeightProperty, new DoubleAnimation(size, dur) { EasingFunction = ease });
+                dot.BeginAnimation(WidthProperty, new DoubleAnimation(width, dur) { EasingFunction = ease });
                 brush.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(color, dur) { EasingFunction = ease });
             }
             else
             {
                 dot.BeginAnimation(WidthProperty, null);
-                dot.BeginAnimation(HeightProperty, null);
                 brush.BeginAnimation(SolidColorBrush.ColorProperty, null);
-                dot.Width = size;
-                dot.Height = size;
+                dot.Width = width;
                 brush.Color = color;
             }
         }
@@ -525,8 +502,6 @@ public partial class WelcomeWindow : Window
         Close();
     }
 
-                                                                              
-
     private void CompleteAndClose()
     {
         Finish(apply: true);
@@ -550,7 +525,6 @@ public partial class WelcomeWindow : Window
         }
         else
         {
-                                                                                                 
             _live.Save();
         }
 

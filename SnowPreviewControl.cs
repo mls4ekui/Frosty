@@ -253,10 +253,7 @@ public sealed class SnowPreviewControl : SKElement
         _paintH = h;
 
         canvas.Save();
-        using (var clip = new SKRoundRect(new SKRect(0, 0, w, h), 14f * (float)(w / Math.Max(1.0, ActualWidth))))
-        {
-            canvas.ClipRoundRect(clip, SKClipOperation.Intersect, true);
-        }
+        canvas.ClipRect(new SKRect(0, 0, w, h), SKClipOperation.Intersect, true);
 
         if (_engine != null)
         {
@@ -279,7 +276,7 @@ public sealed class SnowPreviewControl : SKElement
         TrackedSurface bar = _tracker.Taskbar;
         float u = Math.Max(1f, h / 380f);
 
-        using (var line = new SKPaint { IsAntialias = true, BlendMode = SKBlendMode.DstOver, Color = new SKColor(71, 85, 105, 110) })
+        using (var line = new SKPaint { IsAntialias = false, BlendMode = SKBlendMode.DstOver, Color = new SKColor(51, 65, 85, 130) })
         {
             float lx = win.Left + 16 * u;
             float ly = win.TopY + 40 * u;
@@ -288,47 +285,45 @@ public sealed class SnowPreviewControl : SKElement
             foreach (float k in widths)
             {
                 if (ly + 6 * u > win.BottomY - 6 * u) break;
-                canvas.DrawRoundRect(lx, ly, maxW * k, 6 * u, 3 * u, 3 * u, line);
+                canvas.DrawRect(lx, ly, maxW * k, 6 * u, line);
                 ly += 16 * u;
             }
         }
 
-        using (var dot = new SKPaint { IsAntialias = true, BlendMode = SKBlendMode.DstOver })
+        using (var topBar = new SKPaint { IsAntialias = false, BlendMode = SKBlendMode.DstOver, Color = new SKColor(56, 189, 248) })
         {
-            SKColor[] colors = { new(74, 222, 128), new(250, 204, 21), new(248, 113, 113) };
-            for (int i = 0; i < 3; i++)
-            {
-                dot.Color = colors[2 - i];
-                canvas.DrawCircle(win.Left + (14 + (2 - i) * 13) * u, win.TopY + 14 * u, 4 * u, dot);
-            }
+            canvas.DrawRect(win.Left, win.TopY, win.Right - win.Left, 2 * u, topBar);
         }
 
-        using (var title = new SKPaint { IsAntialias = true, BlendMode = SKBlendMode.DstOver, Color = new SKColor(40, 48, 64) })
+        using (var title = new SKPaint { IsAntialias = false, BlendMode = SKBlendMode.DstOver, Color = new SKColor(21, 32, 51) })
         {
-            canvas.DrawRoundRect(win.Left, win.TopY, win.Right - win.Left, 28 * u, 8 * u, 8 * u, title);
+            canvas.DrawRect(win.Left, win.TopY + 2 * u, win.Right - win.Left, 26 * u, title);
         }
 
-        using (var body = new SKPaint { IsAntialias = true, BlendMode = SKBlendMode.DstOver, Color = new SKColor(28, 34, 46) })
-        using (var border = new SKPaint { IsAntialias = true, BlendMode = SKBlendMode.DstOver, Style = SKPaintStyle.Stroke, StrokeWidth = 1.2f * u, Color = new SKColor(71, 85, 105, 180) })
+        using (var body = new SKPaint { IsAntialias = false, BlendMode = SKBlendMode.DstOver, Color = new SKColor(15, 23, 38) })
+        using (var border = new SKPaint { IsAntialias = false, BlendMode = SKBlendMode.DstOver, Style = SKPaintStyle.Stroke, StrokeWidth = 1.2f * u, Color = new SKColor(34, 48, 71, 220) })
         {
             var rect = new SKRect(win.Left, win.TopY, win.Right, win.BottomY + 12 * u);
-            canvas.DrawRoundRect(rect, 8 * u, 8 * u, border);
-            canvas.DrawRoundRect(rect, 8 * u, 8 * u, body);
+            canvas.DrawRect(rect, border);
+            canvas.DrawRect(rect, body);
         }
 
-        using (var tb = new SKPaint { IsAntialias = true, BlendMode = SKBlendMode.DstOver, Color = new SKColor(15, 20, 30) })
+        using (var tb = new SKPaint { IsAntialias = false, BlendMode = SKBlendMode.DstOver, Color = new SKColor(10, 16, 28) })
+        using (var tbBorder = new SKPaint { IsAntialias = false, BlendMode = SKBlendMode.DstOver, Color = new SKColor(34, 48, 71) })
         {
+            canvas.DrawRect(0, bar.TopY, w, 1.2f * u, tbBorder);
             canvas.DrawRect(0, bar.TopY, w, h - bar.TopY, tb);
         }
-        using (var icon = new SKPaint { IsAntialias = true, BlendMode = SKBlendMode.DstOver, Color = new SKColor(56, 189, 248, 190) })
-        using (var icon2 = new SKPaint { IsAntialias = true, BlendMode = SKBlendMode.DstOver, Color = new SKColor(100, 116, 139, 160) })
+
+        using (var icon = new SKPaint { IsAntialias = false, BlendMode = SKBlendMode.DstOver, Color = new SKColor(56, 189, 248, 200) })
+        using (var icon2 = new SKPaint { IsAntialias = false, BlendMode = SKBlendMode.DstOver, Color = new SKColor(34, 48, 71, 200) })
         {
             float cy = bar.TopY + (h - bar.TopY) / 2f;
             float s = Math.Min(16f * u, (h - bar.TopY) * 0.42f);
             for (int i = 0; i < 4; i++)
             {
                 float x = w / 2f - 2.2f * s + i * 1.6f * s;
-                canvas.DrawRoundRect(x, cy - s / 2f, s, s, s * 0.25f, s * 0.25f, i == 0 ? icon : icon2);
+                canvas.DrawRect(x, cy - s / 2f, s, s, i == 0 ? icon : icon2);
             }
         }
 
@@ -338,8 +333,8 @@ public sealed class SnowPreviewControl : SKElement
             Shader = SKShader.CreateLinearGradient(
                 new SKPoint(0, 0),
                 new SKPoint(0, h),
-                new[] { new SKColor(15, 23, 42), new SKColor(30, 41, 70), new SKColor(23, 32, 56) },
-                new[] { 0f, 0.7f, 1f },
+                new[] { new SKColor(10, 16, 29), new SKColor(14, 24, 43), new SKColor(6, 10, 18) },
+                new[] { 0f, 0.65f, 1f },
                 SKShaderTileMode.Clamp)
         };
         canvas.DrawRect(0, 0, w, h, bg);

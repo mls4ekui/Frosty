@@ -15,39 +15,43 @@
 
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0"
-                            CornerRadius="12"
+                            CornerRadius="0"
                             GlassFrameThickness="-1"
                             ResizeBorderThickness="0"
                             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
-
     <Border x:Name="RootBorder"
-            CornerRadius="12"
-            Background="#CC141820"
-            BorderBrush="#3B475E"
+            CornerRadius="0"
+            Background="#0F1726"
+            BorderBrush="#223047"
             BorderThickness="1"
             Margin="0">
 
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="46" />
+                <RowDefinition Height="2" />
+                <RowDefinition Height="36" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0"
-                    Background="#9910131A"
-                    CornerRadius="12,12,0,0"
-                    BorderBrush="#222834"
+            <!-- Верхний ледяной кант 2px как у окон на сайте -->
+            <Border Grid.Row="0" Background="#38BDF8" />
+
+            <!-- Строгая шапка окна -->
+            <Border Grid.Row="1"
+                    Background="#152033"
+                    CornerRadius="0"
+                    BorderBrush="#223047"
                     BorderThickness="0,0,0,1"
                     MouseLeftButtonDown="OnTitleBarDrag">
-                <Grid Margin="18,0,10,0">
+                <Grid Margin="14,0,0,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <local:AppLogoImage Width="18" Height="18" Margin="0,0,10,0" />
+                        <local:AppLogoImage Width="17" Height="17" Margin="0,0,8,0" />
                         <TextBlock Text="Frosty"
-                                   Foreground="#FFFFFF"
-                                   FontWeight="Bold"
-                                   FontSize="14.5"
+                                   Foreground="#F3F4F6"
+                                   FontWeight="SemiBold"
+                                   FontSize="13.5"
                                    VerticalAlignment="Center" />
                     </StackPanel>
 
@@ -57,16 +61,16 @@
                 </Grid>
             </Border>
 
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="238" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
-                        Background="#9912161F"
-                        CornerRadius="0,0,0,12"
-                        BorderBrush="#222834"
+                        Background="#0A101C"
+                        CornerRadius="0"
+                        BorderBrush="#223047"
                         BorderThickness="0,0,1,0"
                         Padding="12,16">
                     <Grid>
@@ -119,22 +123,21 @@
                         </StackPanel>
 
                         <StackPanel VerticalAlignment="Bottom">
-                                                                       
-                            <Border Background="#B819202C"
-                                    BorderBrush="#293447"
+                            <Border Background="#131D2E"
+                                    BorderBrush="#223047"
                                     BorderThickness="1"
-                                    CornerRadius="8"
+                                    CornerRadius="0"
                                     Padding="10,7"
                                     Margin="0,0,0,8">
                                 <Grid>
                                     <TextBlock x:Name="SidebarLangLabel"
                                                Text="Язык:"
-                                               Foreground="#9CA3AF"
+                                               Foreground="#94A3B8"
                                                FontSize="11.5"
                                                VerticalAlignment="Center"
                                                HorizontalAlignment="Left" />
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                        <TextBlock Text="RU" Foreground="#E5E7EB" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center" />
+                                        <TextBlock Text="RU" Foreground="#F3F4F6" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center" />
                                         <CheckBox x:Name="LanguageToggle"
                                                   Style="{StaticResource FluentToggleStyle}"
                                                   Margin="8,0,8,0"
@@ -144,7 +147,6 @@
                                 </Grid>
                             </Border>
 
-                                                             
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -183,15 +185,15 @@
                                 </Button>
                             </Grid>
 
-                            <Border Background="#B819202C"
-                                    BorderBrush="#293447"
+                            <Border Background="#131D2E"
+                                    BorderBrush="#223047"
                                     BorderThickness="1"
-                                    CornerRadius="8"
+                                    CornerRadius="0"
                                     Padding="10">
                                 <StackPanel>
-                                    <TextBlock x:Name="HotkeysHeaderText" Text="Горячие клавиши:" Foreground="#9CA3AF" FontSize="11" />
-                                    <TextBlock x:Name="HotkeyPauseText" Text="Ctrl + Alt + S — Пауза" Foreground="#E5E7EB" FontSize="11.5" FontWeight="SemiBold" Margin="0,3,0,0" />
-                                    <TextBlock x:Name="HotkeyClearText" Text="Ctrl + Alt + C — Очистка" Foreground="#E5E7EB" FontSize="11.5" FontWeight="SemiBold" Margin="0,2,0,0" />
+                                    <TextBlock x:Name="HotkeysHeaderText" Text="Горячие клавиши:" Foreground="#94A3B8" FontSize="11" />
+                                    <TextBlock x:Name="HotkeyPauseText" Text="Ctrl + Alt + S – Пауза" Foreground="#F3F4F6" FontSize="11.5" FontWeight="SemiBold" Margin="0,3,0,0" />
+                                    <TextBlock x:Name="HotkeyClearText" Text="Ctrl + Alt + C – Очистка" Foreground="#F3F4F6" FontSize="11.5" FontWeight="SemiBold" Margin="0,2,0,0" />
                                 </StackPanel>
                             </Border>
                         </StackPanel>
@@ -242,7 +244,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12"
                                     Margin="0,0,0,10">
                                 <StackPanel>
@@ -370,7 +372,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12"
                                     Margin="0,0,0,10">
                                 <Grid>
@@ -392,7 +394,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12">
                                 <StackPanel>
                                     <TextBlock x:Name="ThemePaletteTitle" Text="Стиль и палитра снега" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" Margin="0,0,0,10" />
@@ -400,9 +402,9 @@
                                         <RadioButton x:Name="ThemeWhiteRadio" GroupName="SnowTheme" Style="{StaticResource ColorSwatchStyle}" Checked="OnThemeRadioChecked">
                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                 <Canvas Width="24" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
-                                                    <Ellipse Width="12" Height="12" Canvas.Left="0" Canvas.Top="2" Fill="#FFFFFF" Stroke="#94A3B8" StrokeThickness="0.8" />
-                                                    <Ellipse Width="12" Height="12" Canvas.Left="6" Canvas.Top="2" Fill="#E2E8F0" Stroke="#64748B" StrokeThickness="0.8" />
-                                                    <Ellipse Width="12" Height="12" Canvas.Left="12" Canvas.Top="2" Fill="#CBD5E1" Stroke="#475569" StrokeThickness="0.8" />
+                                                    <Rectangle Width="11" Height="11" Canvas.Left="0" Canvas.Top="2" Fill="#FFFFFF" Stroke="#94A3B8" StrokeThickness="0.8" />
+                                                    <Rectangle Width="11" Height="11" Canvas.Left="6" Canvas.Top="2" Fill="#E2E8F0" Stroke="#64748B" StrokeThickness="0.8" />
+                                                    <Rectangle Width="11" Height="11" Canvas.Left="12" Canvas.Top="2" Fill="#CBD5E1" Stroke="#475569" StrokeThickness="0.8" />
                                                 </Canvas>
                                                 <TextBlock x:Name="ThemeWhiteText" Text="Классика" VerticalAlignment="Center" FontWeight="Medium" />
                                             </StackPanel>
@@ -411,9 +413,9 @@
                                         <RadioButton x:Name="ThemeNeonRadio" GroupName="SnowTheme" Style="{StaticResource ColorSwatchStyle}" Checked="OnThemeRadioChecked">
                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                 <Canvas Width="24" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
-                                                    <Ellipse Width="12" Height="12" Canvas.Left="0" Canvas.Top="2" Fill="#00F5FF" />
-                                                    <Ellipse Width="12" Height="12" Canvas.Left="6" Canvas.Top="2" Fill="#FF2AD4" />
-                                                    <Ellipse Width="12" Height="12" Canvas.Left="12" Canvas.Top="2" Fill="#A855F7" />
+                                                    <Rectangle Width="11" Height="11" Canvas.Left="0" Canvas.Top="2" Fill="#00F5FF" />
+                                                    <Rectangle Width="11" Height="11" Canvas.Left="6" Canvas.Top="2" Fill="#FF2AD4" />
+                                                    <Rectangle Width="11" Height="11" Canvas.Left="12" Canvas.Top="2" Fill="#A855F7" />
                                                 </Canvas>
                                                 <TextBlock x:Name="ThemeNeonText" Text="Киберпанк" VerticalAlignment="Center" FontWeight="Medium" />
                                             </StackPanel>
@@ -422,9 +424,9 @@
                                         <RadioButton x:Name="ThemeGoldRadio" GroupName="SnowTheme" Style="{StaticResource ColorSwatchStyle}" Checked="OnThemeRadioChecked">
                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                 <Canvas Width="24" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
-                                                    <Ellipse Width="12" Height="12" Canvas.Left="0" Canvas.Top="2" Fill="#FEF08A" />
-                                                    <Ellipse Width="12" Height="12" Canvas.Left="6" Canvas.Top="2" Fill="#FACC15" />
-                                                    <Ellipse Width="12" Height="12" Canvas.Left="12" Canvas.Top="2" Fill="#D97706" />
+                                                    <Rectangle Width="11" Height="11" Canvas.Left="0" Canvas.Top="2" Fill="#FEF08A" />
+                                                    <Rectangle Width="11" Height="11" Canvas.Left="6" Canvas.Top="2" Fill="#FACC15" />
+                                                    <Rectangle Width="11" Height="11" Canvas.Left="12" Canvas.Top="2" Fill="#D97706" />
                                                 </Canvas>
                                                 <TextBlock x:Name="ThemeGoldText" Text="Золото" VerticalAlignment="Center" FontWeight="Medium" />
                                             </StackPanel>
@@ -433,9 +435,9 @@
                                         <RadioButton x:Name="ThemeConfettiRadio" GroupName="SnowTheme" Style="{StaticResource ColorSwatchStyle}" Checked="OnThemeRadioChecked">
                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                 <Canvas Width="24" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
-                                                    <Ellipse Width="12" Height="12" Canvas.Left="0" Canvas.Top="2" Fill="#FF6384" />
-                                                    <Ellipse Width="12" Height="12" Canvas.Left="6" Canvas.Top="2" Fill="#36A2EB" />
-                                                    <Ellipse Width="12" Height="12" Canvas.Left="12" Canvas.Top="2" Fill="#4ADE80" />
+                                                    <Rectangle Width="11" Height="11" Canvas.Left="0" Canvas.Top="2" Fill="#FF6384" />
+                                                    <Rectangle Width="11" Height="11" Canvas.Left="6" Canvas.Top="2" Fill="#36A2EB" />
+                                                    <Rectangle Width="11" Height="11" Canvas.Left="12" Canvas.Top="2" Fill="#4ADE80" />
                                                 </Canvas>
                                                 <TextBlock x:Name="ThemeConfettiText" Text="Конфетти" VerticalAlignment="Center" FontWeight="Medium" />
                                             </StackPanel>
@@ -456,7 +458,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12"
                                     Margin="0,0,0,10">
                                 <Grid>
@@ -466,7 +468,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
                                         <TextBlock x:Name="CraftingTitleText" Text="Лепка снежков и снеговиков (ЛКМ / ПКМ)" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" />
-                                        <TextBlock x:Name="CraftingDescText" Text="ЛКМ по сугробу — скатать ком, соединить 2–3 кома — снеговик. ПКМ — разбить объект в снежинки."
+                                        <TextBlock x:Name="CraftingDescText" Text="ЛКМ по сугробу – скатать ком, соединить 2–3 кома – снеговик. ПКМ – разбить объект в снежинки."
                                                    Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0" />
                                     </StackPanel>
                                     <CheckBox x:Name="CraftingToggle"
@@ -479,7 +481,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12"
                                     Margin="0,0,0,10"
                                     MouseLeftButtonDown="OnLivingSnowmenCardClick">
@@ -502,7 +504,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12"
                                     Margin="0,0,0,10">
                                 <Grid>
@@ -524,7 +526,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12"
                                     Margin="0,0,0,10">
                                 <StackPanel>
@@ -545,14 +547,14 @@
                                             IsSnapToTickEnabled="True"
                                             IsMoveToPointEnabled="True"
                                             ValueChanged="OnSliderValueChanged" />
-                                    <TextBlock x:Name="ShakeThresholdHintText" Text="Меньше — снег слетает от лёгкого встряхивания, больше — окно нужно трясти резко и сильно" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,6,0,0" />
+                                    <TextBlock x:Name="ShakeThresholdHintText" Text="Меньше – снег слетает от лёгкого встряхивания, больше – окно нужно трясти резко и сильно" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,6,0,0" />
                                 </StackPanel>
                             </Border>
 
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12"
                                     Margin="0,0,0,10">
                                 <Grid>
@@ -574,7 +576,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12"
                                     Margin="0,0,0,10">
                                 <Grid>
@@ -596,7 +598,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12"
                                     Margin="0,0,0,10">
                                 <StackPanel>
@@ -649,7 +651,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12"
                                     Margin="0,0,0,10">
                                 <Grid>
@@ -671,7 +673,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12"
                                     Margin="0,0,0,10">
                                 <Grid>
@@ -693,7 +695,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12"
                                     Margin="0,0,0,10">
                                 <Grid>
@@ -715,7 +717,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,12">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -742,11 +744,10 @@
                                        FontWeight="Bold"
                                        Margin="0,0,0,12" />
 
-                                                                
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,14"
                                     Margin="0,0,0,12">
                                 <StackPanel>
@@ -789,7 +790,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,14"
                                     Margin="0,0,0,12">
                                 <Grid>
@@ -811,7 +812,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,14"
                                     Margin="0,0,0,12">
                                 <Grid>
@@ -833,7 +834,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,14"
                                     Margin="0,0,0,12">
                                 <StackPanel>
@@ -871,7 +872,7 @@
                             <Border Background="{StaticResource CardBgBrush}"
                                     BorderBrush="{StaticResource CardBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10"
+                                    CornerRadius="0"
                                     Padding="16,14"
                                     Margin="0,0,0,16">
                                 <Grid>

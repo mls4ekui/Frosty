@@ -2609,7 +2609,7 @@ public sealed class SnowSimulationEngine : IDisposable
         canvas.Save();
         if (_hasSettingsExclusion)
         {
-            canvas.ClipRoundRect(new SKRoundRect(_settingsExclusionRect, 12f, 12f), SKClipOperation.Difference, antialias: false);
+            canvas.ClipRect(_settingsExclusionRect, SKClipOperation.Difference);
         }
         if (_hasTrayExclusion)
         {
@@ -2617,7 +2617,7 @@ public sealed class SnowSimulationEngine : IDisposable
         }
         if (_hasWelcomeExclusion)
         {
-            canvas.ClipRoundRect(new SKRoundRect(_welcomeExclusionRect, 12f, 12f), SKClipOperation.Difference, antialias: false);
+            canvas.ClipRect(_welcomeExclusionRect, SKClipOperation.Difference);
         }
 
                                                                      
