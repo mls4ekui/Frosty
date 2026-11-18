@@ -35,4 +35,5 @@
 1. Установите **.NET 10 SDK**.
 2. Клонируйте репозиторий:
    ```bash
-   git clone [https://github.com/mls4ekui/Frosty.git](https://github.com/mls4ekui/Frosty.git)
+   git clone https://github.com/mls4ekui/Frosty.git
+   ```
