@@ -6,11 +6,6 @@
 
 > 🌐 **[Попробовать интерактивное демо прямо в браузере →](https://frosty-desktop.netlify.app)**
 
-[![Live Demo](https://img.shields.io/badge/demo-frosty--desktop.netlify.app-38bdf8?style=flat&logo=netlify&logoColor=white)](https://frosty-desktop.netlify.app)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-lightgrey)
-![Framework](https://img.shields.io/badge/.NET-10.0-purple)
-
 ---
 
 ## 🚀 Основные возможности
