@@ -814,7 +814,7 @@ public sealed class SnowSimulationEngine : IDisposable
     {
         if (surf.IsTaskbar) return _accumulateOnTaskbar;
         if (surf.IsMaximizedOrTopDocked) return false;
-        return surf.TopY > 34;
+        return true;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -843,6 +843,26 @@ public sealed class SnowSimulationEngine : IDisposable
                 return true;
         }
         return false;
+    }
+
+    private bool IsPointHiddenBehindHigherWindow(float x, float y, int limit)
+    {
+        int n = Math.Min(limit, _surfacesSnapshot.Count);
+        for (int j = 0; j < n; j++)
+        {
+            TrackedSurface higher = _surfacesSnapshot[j];
+            if (higher.IsMaximizedOrTopDocked) return true;
+            if (x >= higher.Left - 2 && x <= higher.Right + 2 && y >= higher.TopY - 2 && y <= higher.BottomY + 2)
+                return true;
+        }
+        return false;
+    }
+
+    // true, если точка эффекта на сугробе этого окна закрыта окнами, лежащими выше него.
+    private bool IsSpotHidden(in TrackedSurface surf, float x, float y)
+    {
+        int idx = FindSurfaceIndexByHandle(surf.Handle);
+        return idx > 0 && IsPointHiddenBehindHigherWindow(x, y, idx);
     }
 
     public bool ShouldInterceptMouse(float x, float y)
@@ -1346,8 +1366,8 @@ public sealed class SnowSimulationEngine : IDisposable
                     ref LandingSurfaceEntry entry = ref _landingCache[i];
                     if (mouseX < entry.Left || mouseX > entry.Right) continue;
 
-                    if (!entry.IsTaskbar && _enableWindowOcclusion &&
-                        IsTopEdgeOccludedByHigherWindow((int)mouseX, entry.TopY, Math.Min(entry.SnapshotIndex, _surfacesSnapshot.Count)))
+                    if (!entry.IsTaskbar &&
+                        IsTopEdgeCovered((int)mouseX, entry.TopY, Math.Min(entry.SnapshotIndex, _surfacesSnapshot.Count)))
                     {
                         continue;
                     }
@@ -2112,8 +2132,8 @@ public sealed class SnowSimulationEngine : IDisposable
                 {
                     if (b < 0 || b >= winBuckets) continue;
 
-                    if (_enableWindowOcclusion && !surf.IsTaskbar &&
-                        IsTopEdgeOccludedByHigherWindow(surf.Left + b * BucketSize, surf.TopY, i))
+                    if (!surf.IsTaskbar &&
+                        IsTopEdgeCovered(surf.Left + b * BucketSize, surf.TopY, i))
                     {
                         continue;
                     }
@@ -2201,7 +2221,8 @@ public sealed class SnowSimulationEngine : IDisposable
                     bank.Heights[b] -= h * shedRatio;
                     bank.IsDirty = true;
 
-                    if ((b & 7) == 0 && _rng.NextDouble() < 0.25)
+                    if ((b & 7) == 0 && _rng.NextDouble() < 0.25 &&
+                        !IsSpotHidden(in surf, surf.Left + b * BucketSize, surf.TopY + SurfaceContactOffset - h * 0.7f))
                     {
                         SpawnSplashParticle(
                             surf.Left + b * BucketSize,
@@ -2246,7 +2267,7 @@ public sealed class SnowSimulationEngine : IDisposable
                 float spill = bank.Heights[0] - 2.0f;
                 bank.Heights[0] = 2.0f;
                 stillDirty = true;
-                if (spill > 0.9f)
+                if (spill > 0.9f && !IsSpotHidden(in surf, surf.Left - 2f, surf.TopY + SurfaceContactOffset))
                 {
                     SpawnSplashParticle(
                         surf.Left - 2f,
@@ -2262,7 +2283,7 @@ public sealed class SnowSimulationEngine : IDisposable
                 float spill = bank.Heights[lastIdx] - 2.0f;
                 bank.Heights[lastIdx] = 2.0f;
                 stillDirty = true;
-                if (spill > 0.9f)
+                if (spill > 0.9f && !IsSpotHidden(in surf, surf.Right + 2f, surf.TopY + SurfaceContactOffset))
                 {
                     SpawnSplashParticle(
                         surf.Right + 2f,
@@ -2367,7 +2388,8 @@ public sealed class SnowSimulationEngine : IDisposable
 
             bank.Heights[b] -= removed;
 
-            if (spawned < 45 && removed > 0.6f && _rng.NextDouble() < 0.75)
+            if (spawned < 45 && removed > 0.6f && _rng.NextDouble() < 0.75 &&
+                !IsSpotHidden(in surf, surf.Left + b * BucketSize, surf.TopY + SurfaceContactOffset - h * 0.6f))
             {
                 spawned++;
                 SpawnSplashParticle(
@@ -2419,25 +2441,31 @@ public sealed class SnowSimulationEngine : IDisposable
     }
 
     private void ScatterBankIntoParticles(SurfaceSnowBank bank)
-    {
-        if (!bank.HasAnySnow) return;
+{
+    if (!bank.HasAnySnow) return;
 
-        int winBuckets = Math.Clamp(((bank.LastRight - bank.LastLeft) / BucketSize) + 1, 3, _bucketCount - 1);
-        for (int b = 0; b < winBuckets; b++)
+    int winBuckets = Math.Clamp(((bank.LastRight - bank.LastLeft) / BucketSize) + 1, 3, _bucketCount - 1);
+    for (int b = 0; b < winBuckets; b++)
+    {
+        float h = bank.Heights[b];
+        if (h > 2.0f && (b & 1) == 0)
         {
-            float h = bank.Heights[b];
-            if (h > 2.0f && (b & 1) == 0)
-            {
-                float screenX = bank.LastLeft + b * BucketSize;
-                SpawnSplashParticle(
-                    screenX + (float)_rng.NextDouble() * BucketSize,
-                    bank.LastTopY + SurfaceContactOffset - h * 0.5f,
-                    0f,
-                    15f + (float)_rng.NextDouble() * 40f);
-            }
+            float screenX = bank.LastLeft + b * BucketSize;
+            float spawnY = bank.LastTopY + SurfaceContactOffset - h * 0.5f;
+
+            int ownIdx = FindSurfaceIndexByHandle(bank.Handle);
+            if (IsPointHiddenBehindHigherWindow(screenX, spawnY, ownIdx >= 0 ? ownIdx : _surfacesSnapshot.Count))
+                continue;
+
+            SpawnSplashParticle(
+                screenX + (float)_rng.NextDouble() * BucketSize,
+                spawnY,
+                0f,
+                15f + (float)_rng.NextDouble() * 40f);
         }
-        bank.ClearHeights();
     }
+    bank.ClearHeights();
+}
 
     private bool TryLandParticleOnSurface(ref Particle p, float prevY)
     {
@@ -2468,11 +2496,14 @@ public sealed class SnowSimulationEngine : IDisposable
                 if (!entry.IsTaskbar && (localB <= 1 || localB >= entry.WinBuckets - 2) && driftHeight > 3.5f)
                 {
                     bool isLeftEdge = localB <= 1;
-                    SpawnSplashParticle(
-                        isLeftEdge ? entry.Left - 2f : entry.Right + 2f,
-                        entry.TopY + SurfaceContactOffset,
-                        isLeftEdge ? (-22f - (float)_rng.NextDouble() * 35f) : (22f + (float)_rng.NextDouble() * 35f),
-                        20f + (float)_rng.NextDouble() * 40f);
+                    if (!IsTopEdgeCovered(px, entry.TopY, entry.SnapshotIndex))
+                    {
+                        SpawnSplashParticle(
+                            isLeftEdge ? entry.Left - 2f : entry.Right + 2f,
+                            entry.TopY + SurfaceContactOffset,
+                            isLeftEdge ? (-22f - (float)_rng.NextDouble() * 35f) : (22f + (float)_rng.NextDouble() * 35f),
+                            20f + (float)_rng.NextDouble() * 40f);
+                    }
                     if (_enableWindowOcclusion || entry.IsTaskbar)
                         return true;
                     continue;
@@ -2513,16 +2544,36 @@ public sealed class SnowSimulationEngine : IDisposable
         if (!_enableWindowOcclusion)
             return false;
 
+        return IsTopEdgeCovered(x, surfaceTopY, currentSurfaceIndex);
+    }
+
+    // Не зависит от тумблера «крыши»: используется для эффектов (лавины, разлёт сугроба),
+    // которые не должны происходить в местах, закрытых верхними окнами.
+    private bool IsTopEdgeCovered(int x, int surfaceTopY, int currentSurfaceIndex)
+    {
         int snowTopLimit = (int)_maxSnowHeight + 12;
 
         for (int j = 0; j < currentSurfaceIndex; j++)
         {
             TrackedSurface higher = _surfacesSnapshot[j];
-            if (higher.IsTaskbar) continue;
             if (higher.IsMaximizedOrTopDocked) return true;
 
             if (x >= higher.Left - 2 && x <= higher.Right + 2 &&
                 surfaceTopY >= higher.TopY - 2 && (surfaceTopY - snowTopLimit) <= higher.BottomY)
+            {
+                return true;
+            }
+        }
+
+        // Окна, которые лежат ниже по z-порядку, но целиком выше этой кромки на экране:
+        // сугроб не должен залезать на них (их z-порядок для непересекающихся окон ничего не значит).
+        for (int j = currentSurfaceIndex + 1; j < _surfacesSnapshot.Count; j++)
+        {
+            TrackedSurface other = _surfacesSnapshot[j];
+            if (other.IsTaskbar) continue;
+            if (other.BottomY > surfaceTopY + 2) continue;
+
+            if (x >= other.Left - 2 && x <= other.Right + 2 && (surfaceTopY - snowTopLimit) <= other.BottomY)
             {
                 return true;
             }
@@ -2575,18 +2626,31 @@ public sealed class SnowSimulationEngine : IDisposable
 
     private bool TryBuildOccluderClipPath(int surfaceIndex, SKRect targetBounds)
     {
-        if (!_enableWindowOcclusion)
-            return false;
+        // Обрезка при рисовании не зависит от тумблера «крыши»: он управляет только тем,
+        // садится ли снег под верхними окнами, но уже лежащий снег не должен рисоваться поверх окон.
 
         _occluderPath.Reset();
         bool anyOverlap = false;
 
-        for (int j = 0; j < surfaceIndex; j++)
-        {
-            TrackedSurface higher = _surfacesSnapshot[j];
-            if (higher.IsTaskbar) continue;
+        if (surfaceIndex < 0 || surfaceIndex >= _surfacesSnapshot.Count)
+            return false;
 
-            var rect = new SKRect(higher.Left - 2, higher.TopY - 2, higher.Right + 2, higher.BottomY + 2);
+        TrackedSurface target = _surfacesSnapshot[surfaceIndex];
+
+        for (int j = 0; j < _surfacesSnapshot.Count; j++)
+        {
+            if (j == surfaceIndex) continue;
+
+            TrackedSurface other = _surfacesSnapshot[j];
+            // Панель задач закрывает только окна, которые под ней; снег на самой панели она не режет.
+            if (other.IsTaskbar && (target.IsTaskbar || j > surfaceIndex)) continue;
+
+            // Окна выше по z-порядку закрывают снег всегда. Окна ниже по z-порядку закрывают его
+            // только если целиком лежат выше кромки (не пересекаются с окном, на котором лежит снег).
+            // Для самого таскбара второе правило не применяется: снег на нём должен быть виден.
+            if (j > surfaceIndex && (target.IsTaskbar || other.BottomY > target.TopY + 2)) continue;
+
+            var rect = new SKRect(other.Left - 2, other.TopY - 2, other.Right + 2, other.BottomY + 2);
             if (rect.IntersectsWith(targetBounds))
             {
                 _occluderPath.AddRect(rect);
@@ -2632,8 +2696,8 @@ public sealed class SnowSimulationEngine : IDisposable
             _reusablePath.Reset();
             if (AppendSmoothSnowBankToPath(_reusablePath, in surf, bank))
             {
-                var bankBounds = new SKRect(surf.Left, surf.TopY - _maxSnowHeight - 4f, surf.Right, surf.TopY + 6f);
-                if (i > 0 && TryBuildOccluderClipPath(i, bankBounds))
+                var bankBounds = new SKRect(surf.Left, surf.TopY - _maxSnowHeight * 1.25f - 8f, surf.Right, surf.TopY + 6f);
+                if (TryBuildOccluderClipPath(i, bankBounds))
                 {
                     canvas.Save();
                     canvas.ClipPath(_occluderPath, SKClipOperation.Difference);
@@ -2657,7 +2721,7 @@ public sealed class SnowSimulationEngine : IDisposable
             int surfIdx = sm.IsGrounded ? FindSurfaceIndexByHandle(sm.GroundedWindowHandle) : -1;
             if (sm.IsGrounded && surfIdx < 0) continue;
 
-            if (surfIdx > 0)
+            if (surfIdx >= 0)
             {
                 float r = sm.MaxRadius * 2f;
                 var smBounds = new SKRect(sm.X - r, sm.BottomY - sm.TotalHeight - 15f, sm.X + r, sm.BottomY + 5f);
@@ -2689,7 +2753,7 @@ public sealed class SnowSimulationEngine : IDisposable
             int surfIdx = sb.IsGrounded ? FindSurfaceIndexByHandle(sb.GroundedWindowHandle) : -1;
             if (smOrBallHidden(sb.IsGrounded, surfIdx)) continue;
 
-            if (surfIdx > 0)
+            if (surfIdx >= 0)
             {
                 var sbBounds = new SKRect(sb.X - sb.Radius - 2f, sb.Y - sb.Radius - 2f, sb.X + sb.Radius + 2f, sb.Y + sb.Radius + 2f);
                 if (TryBuildOccluderClipPath(surfIdx, sbBounds))
@@ -2744,6 +2808,22 @@ public sealed class SnowSimulationEngine : IDisposable
     {
         canvas.Clear(SKColors.Transparent);
 
+        bool clipped = false;
+        int targetIdx = FindSurfaceIndexByHandle(targetHwnd);
+        if (targetIdx >= 0)
+        {
+            TrackedSurface ts = _surfacesSnapshot[targetIdx];
+            float originY = ts.TopY - baseOffsetY;
+            var companionBounds = new SKRect(ts.Left, originY, ts.Left + width, originY + DragCompanionWindow.CompanionHeight);
+            if (TryBuildOccluderClipPath(targetIdx, companionBounds))
+            {
+                _occluderPath.Transform(SKMatrix.CreateTranslation(-ts.Left, -originY));
+                canvas.Save();
+                canvas.ClipPath(_occluderPath, SKClipOperation.Difference);
+                clipped = true;
+            }
+        }
+
         if (_snowBanks.TryGetValue(targetHwnd, out SurfaceSnowBank? bank) && bank.HasAnySnow)
         {
             var localSurf = new TrackedSurface
@@ -2790,6 +2870,9 @@ public sealed class SnowSimulationEngine : IDisposable
             sb.X = savedX;
             sb.Y = savedY;
         }
+
+        if (clipped)
+            canvas.Restore();
     }
 
     private void DrawAkBulletsAndShells(SKCanvas canvas)

@@ -146,7 +146,7 @@ public sealed class TrayService : IDisposable
             BackColor = Color.FromArgb(15, 23, 38),
             ForeColor = Color.FromArgb(243, 244, 246),
             Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
-            Padding = new Padding(1, 3, 1, 2)
+            Padding = new Padding(1, 4, 1, 3)
         };
 
         _settingsMenuItem = new ToolStripMenuItem("Пульт снега (Настройки)", null, (_, _) => _onOpenSettings())
@@ -222,10 +222,30 @@ public sealed class TrayService : IDisposable
 
         protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
         {
-            if (e.Item is ToolStripMenuItem && e.Item.Selected)
+            if (e.Item is ToolStripMenuItem item)
             {
-                e.TextColor = Color.White;
+                // Рисуем текст сами и центрируем по всей высоте пункта: штатная раскладка
+                // с большими Padding и нестандартным шрифтом поднимает текст вверх.
+                Color color = item.Selected ? Color.White : item.ForeColor;
+                if (!item.Enabled) color = Color.FromArgb(107, 114, 128);
+
+                var textRect = new Rectangle(
+                    item.Padding.Left,
+                    0,
+                    Math.Max(1, item.Width - item.Padding.Left - item.Padding.Right),
+                    item.Height);
+
+                TextRenderer.DrawText(
+                    e.Graphics,
+                    item.Text,
+                    item.Font,
+                    textRect,
+                    color,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine |
+                    TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
+                return;
             }
+
             base.OnRenderItemText(e);
         }
 

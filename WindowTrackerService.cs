@@ -321,42 +321,29 @@ public sealed class WindowTrackerService : IWindowTracker, IDisposable
     }
 
     private void FullEnumWindows()
+{
+    _surfaces.Clear();
+
+    if (_marginCache.Count > 250) _marginCache.Clear();
+    if (_minimizingOrHiddenHwnds.Count > 128) _minimizingOrHiddenHwnds.Clear();
+
+    NativeMethods.EnumWindows(_enumProc, IntPtr.Zero);
+	
+    IntPtr fgHwnd = NativeMethods.GetForegroundWindow();
+    if (fgHwnd != IntPtr.Zero && fgHwnd != _overlayHwnd && !_minimizingOrHiddenHwnds.Contains(fgHwnd))
     {
-        _surfaces.Clear();
-
-        if (_marginCache.Count > 250) _marginCache.Clear();
-        if (_minimizingOrHiddenHwnds.Count > 128) _minimizingOrHiddenHwnds.Clear();
-
-        IntPtr fgHwnd = NativeMethods.GetForegroundWindow();
-        if (fgHwnd != IntPtr.Zero && NativeMethods.IsWindowVisible(fgHwnd) && !NativeMethods.IsIconic(fgHwnd))
+        for (int i = 0; i < _surfaces.Count; i++)
         {
-            _minimizingOrHiddenHwnds.Remove(fgHwnd);
+            if (_surfaces[i].Handle == fgHwnd)
+                return;
         }
 
-        NativeMethods.EnumWindows(_enumProc, IntPtr.Zero);
-
-        if (fgHwnd != IntPtr.Zero && fgHwnd != _overlayHwnd)
+        if (TryBuildSurface(fgHwnd, allowIgnoreTransparentFlag: true, out TrackedSurface newFgSurf) && !newFgSurf.IsTaskbar)
         {
-            for (int i = 0; i < _surfaces.Count; i++)
-            {
-                if (_surfaces[i].Handle == fgHwnd)
-                {
-                    if (i > 0 && !_surfaces[i].IsTaskbar)
-                    {
-                        TrackedSurface fgSurf = _surfaces[i];
-                        _surfaces.RemoveAt(i);
-                        _surfaces.Insert(0, fgSurf);
-                    }
-                    return;
-                }
-            }
-
-            if (TryBuildSurface(fgHwnd, allowIgnoreTransparentFlag: true, out TrackedSurface newFgSurf) && !newFgSurf.IsTaskbar)
-            {
-                _surfaces.Insert(0, newFgSurf);
-            }
+            _surfaces.Insert(0, newFgSurf);
         }
     }
+}
 
     private bool EnumWindowCallback(IntPtr hWnd, IntPtr lParam)
     {
@@ -466,12 +453,12 @@ public sealed class WindowTrackerService : IWindowTracker, IDisposable
         int width = localRight - localLeft;
         int height = localBottom - localTop;
 
-        if (width < 80 || height < 20) return false;
+        if (isTaskbar ? (width < 20 || height < 20) : (width < 80 || height < 20)) return false;
         if (localRight <= 0 || localLeft >= _screenWidth || localBottom <= 0 || localTop >= _screenHeight)
             return false;
 
         bool coversScreen = width >= _screenWidth - 40 && height >= _screenHeight - 80;
-        isTopDocked = !isTaskbar && (isMaximized || localTop <= 34 || coversScreen);
+        isTopDocked = !isTaskbar && (isMaximized || coversScreen);
 
         return true;
     }
