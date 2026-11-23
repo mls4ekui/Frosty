@@ -13,6 +13,13 @@ public enum SnowPreset
     Cyber
 }
 
+public enum MonitorMode
+{
+    AllMonitors = 0,
+    PrimaryOnly = 1,
+    SecondaryOnly = 2
+}
+
 public static class SnowPresets
 {
     private readonly record struct Values(int Count, float Speed, float Wind, float Height);
@@ -79,6 +86,7 @@ public sealed class AppSettings
     public float AccumulationRateMultiplier { get; set; } = 1.0f;
     public bool IsBlizzardMode { get; set; } = false;
     public SnowColorTheme ColorTheme { get; set; } = SnowColorTheme.ClassicWhite;
+    public ParticleStyle ParticleStyle { get; set; } = ParticleStyle.Snow;
 
     public bool EnableSnowballCrafting { get; set; } = true;
     public bool EnableCursorScatter { get; set; } = true;
@@ -100,6 +108,10 @@ public sealed class AppSettings
     public bool EnableGlobalHotkeys { get; set; } = true;
 
     public bool EnableUiAnimations { get; set; } = true;
+    public MonitorMode MonitorMode { get; set; } = MonitorMode.AllMonitors;
+    public int TargetFps { get; set; } = 60;
+    public string FullscreenWhitelist { get; set; } = "chrome, msedge, firefox, opera, brave";
+    public string ForcePauseProcesses { get; set; } = "";
 
     public AppSettings Clone() => (AppSettings)MemberwiseClone();
 
@@ -174,6 +186,9 @@ public sealed class AppSettings
         SnowballToughnessMultiplier = Math.Clamp(SnowballToughnessMultiplier, 0.4f, 3.0f);
         WindowShakeThreshold = Math.Clamp(WindowShakeThreshold, 0.3f, 3.0f);
         PowerSaveTimeoutSeconds = Math.Clamp(PowerSaveTimeoutSeconds, 15.0f, 180.0f);
+        if (TargetFps != 0 && TargetFps != 30 && TargetFps != 60) TargetFps = 60;
+        FullscreenWhitelist ??= string.Empty;
+        ForcePauseProcesses ??= string.Empty;
     }
 
     public void ApplyToEngine(SnowSimulationEngine engine)
@@ -189,6 +204,7 @@ public sealed class AppSettings
         engine.SetAccumulationRateMultiplier(AccumulationRateMultiplier);
         engine.SetBlizzardMode(IsBlizzardMode);
         engine.SetColorTheme(ColorTheme);
+        engine.SetParticleStyle(ParticleStyle);
         engine.SetSnowballCrafting(EnableSnowballCrafting);
         engine.SetCursorScatter(EnableCursorScatter);
         engine.SetCursorScatterPower(CursorScatterPower);

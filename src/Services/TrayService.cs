@@ -11,27 +11,36 @@ public sealed class TrayService : IDisposable
     private readonly Action _onOpenSettings;
     private readonly Action _onManualPauseToggle;
     private readonly Action _onExit;
+    private readonly Action<SnowPreset>? _onSelectPreset;
     private readonly IntPtr _iconHandle;
     private readonly Icon _trayIcon;
 
     private ToolStripMenuItem? _settingsMenuItem;
     private ToolStripMenuItem? _pauseMenuItem;
     private ToolStripMenuItem? _clearMenuItem;
+    private ToolStripMenuItem? _presetsMenuItem;
+    private ToolStripMenuItem? _presetCozyItem;
+    private ToolStripMenuItem? _presetClassicItem;
+    private ToolStripMenuItem? _presetHeavyItem;
+    private ToolStripMenuItem? _presetCyberItem;
     private ToolStripMenuItem? _exitMenuItem;
     private bool _lastManualPaused;
     private bool _lastAutoPaused;
+    private SnowPreset? _activePreset;
     private bool _isDisposed;
 
     public TrayService(
         SnowSimulationEngine engine,
         Action onOpenSettings,
         Action onManualPauseToggle,
-        Action onExit)
+        Action onExit,
+        Action<SnowPreset>? onSelectPreset = null)
     {
         _engine = engine;
         _onOpenSettings = onOpenSettings;
         _onManualPauseToggle = onManualPauseToggle;
         _onExit = onExit;
+        _onSelectPreset = onSelectPreset;
 
         TryEnableWin32DarkModeMenus();
 
@@ -71,6 +80,9 @@ public sealed class TrayService : IDisposable
             _settingsMenuItem.Text = Loc.Tr("Пульт снега (Настройки)", "Snow Control Panel (Settings)");
         if (_clearMenuItem != null)
             _clearMenuItem.Text = Loc.Tr("Очистить весь снег (Ctrl+Alt+C)", "Clear all snow (Ctrl+Alt+C)");
+        if (_presetsMenuItem != null)
+            _presetsMenuItem.Text = Loc.Tr("Пресеты погоды", "Weather presets");
+        UpdateActivePreset(_activePreset);
         if (_exitMenuItem != null)
             _exitMenuItem.Text = Loc.Tr("Выход", "Exit");
 
@@ -109,6 +121,24 @@ public sealed class TrayService : IDisposable
         catch
         {
         }
+    }
+
+    public void UpdateActivePreset(SnowPreset? activePreset)
+    {
+        _activePreset = activePreset;
+        StylePresetItem(_presetCozyItem, Loc.Tr("Уютный", "Cozy"), activePreset == SnowPreset.Cozy);
+        StylePresetItem(_presetClassicItem, Loc.Tr("Классика", "Classic"), activePreset == SnowPreset.Classic);
+        StylePresetItem(_presetHeavyItem, Loc.Tr("Снегопад", "Heavy Snow"), activePreset == SnowPreset.Heavy);
+        StylePresetItem(_presetCyberItem, Loc.Tr("Киберпанк", "Cyberpunk"), activePreset == SnowPreset.Cyber);
+    }
+
+    private static void StylePresetItem(ToolStripMenuItem? item, string baseLabel, bool isActive)
+    {
+        if (item == null) return;
+        item.Checked = false;
+        item.Text = isActive ? $"●  {baseLabel}" : $"    {baseLabel}";
+        item.ForeColor = isActive ? Color.FromArgb(56, 189, 248) : Color.FromArgb(243, 244, 246);
+        item.Font = new Font("Segoe UI", 9.5f, isActive ? FontStyle.Bold : FontStyle.Regular);
     }
 
     public void UpdatePauseMenuText(bool isManualPaused)
@@ -157,6 +187,31 @@ public sealed class TrayService : IDisposable
         };
         menu.Items.Add(_settingsMenuItem);
 
+        _presetsMenuItem = new ToolStripMenuItem("Пресеты погоды")
+        {
+            ForeColor = Color.FromArgb(243, 244, 246),
+            Padding = new Padding(10, 5, 10, 5)
+        };
+        if (_presetsMenuItem.DropDown is ToolStripDropDownMenu dropDown)
+        {
+            dropDown.Renderer = new DarkMenuRenderer();
+            dropDown.ShowImageMargin = false;
+            dropDown.ShowCheckMargin = false;
+            dropDown.BackColor = Color.FromArgb(15, 23, 38);
+            dropDown.ForeColor = Color.FromArgb(243, 244, 246);
+        }
+
+        _presetCozyItem = CreatePresetItem("Уютный", SnowPreset.Cozy);
+        _presetClassicItem = CreatePresetItem("Классика", SnowPreset.Classic);
+        _presetHeavyItem = CreatePresetItem("Снегопад", SnowPreset.Heavy);
+        _presetCyberItem = CreatePresetItem("Киберпанк", SnowPreset.Cyber);
+
+        _presetsMenuItem.DropDownItems.Add(_presetCozyItem);
+        _presetsMenuItem.DropDownItems.Add(_presetClassicItem);
+        _presetsMenuItem.DropDownItems.Add(_presetHeavyItem);
+        _presetsMenuItem.DropDownItems.Add(_presetCyberItem);
+        menu.Items.Add(_presetsMenuItem);
+
         menu.Items.Add(new ToolStripSeparator());
 
         _pauseMenuItem = new ToolStripMenuItem("Приостановить снегопад (Ctrl+Alt+S)", null, (_, _) => _onManualPauseToggle())
@@ -185,11 +240,26 @@ public sealed class TrayService : IDisposable
         return menu;
     }
 
+    private ToolStripMenuItem CreatePresetItem(string label, SnowPreset preset)
+    {
+        return new ToolStripMenuItem(label, null, (_, _) => _onSelectPreset?.Invoke(preset))
+        {
+            ForeColor = Color.FromArgb(243, 244, 246),
+            Padding = new Padding(8, 4, 8, 4)
+        };
+    }
+
     private sealed class DarkMenuRenderer : ToolStripProfessionalRenderer
     {
         public DarkMenuRenderer() : base(new DarkColorTable())
         {
             RoundedEdges = false;
+        }
+
+        protected override void OnRenderArrow(ToolStripArrowRenderEventArgs e)
+        {
+            e.ArrowColor = Color.FromArgb(148, 163, 184);
+            base.OnRenderArrow(e);
         }
 
         protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs e)

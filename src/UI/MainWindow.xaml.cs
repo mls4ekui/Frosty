@@ -92,6 +92,10 @@ public partial class MainWindow : Window
         _windowTracker = new WindowTrackerService(_hwnd, _physX, _physY, _physW, _physH);
         _engine = new SnowSimulationEngine(_physX, _physY, _physW, _physH, _windowTracker);
         _settings.ApplyToEngine(_engine);
+        _overlay.SetTargetFps(_settings.TargetFps);
+        ApplyVirtualScreenGeometry();
+        _windowTracker.UpdateScreenBounds(_physX, _physY, _physW, _physH);
+        _engine.UpdateScreenBounds(_physX, _physY, _physW, _physH);
 
         _windowTracker.ActiveWindowMoved += OnActiveWindowMovedByOs;
         _windowTracker.DraggedWindowPositionChanged += OnDraggedWindowPositionChanged;
@@ -108,7 +112,9 @@ public partial class MainWindow : Window
                 _welcomeWindow?.Close();
                 _settingsWindow?.ForceClose();
                 Close();
-            });
+            },
+            onSelectPreset: ApplyPresetFromTray);
+        _trayService.UpdateActivePreset(SnowPresets.Detect(_settings));
 
         _hitTestTimer.Tick += OnHitTestTick;
         _hitTestTimer.Start();
@@ -199,6 +205,10 @@ public partial class MainWindow : Window
         {
             Loc.SetLanguage(_settings.IsEnglishLanguage);
             _settings.ApplyToEngine(_engine);
+            _overlay?.SetTargetFps(_settings.TargetFps);
+            ApplyVirtualScreenGeometry();
+            _windowTracker?.UpdateScreenBounds(_physX, _physY, _physW, _physH);
+            _engine.UpdateScreenBounds(_physX, _physY, _physW, _physH);
         }
 
         if (_settingsWindow is { IsLoaded: true })
@@ -223,6 +233,29 @@ public partial class MainWindow : Window
 
     private void ReadVirtualScreenMetrics()
     {
+        var screens = System.Windows.Forms.Screen.AllScreens;
+        if (_settings.MonitorMode == MonitorMode.PrimaryOnly)
+        {
+            var primary = System.Windows.Forms.Screen.PrimaryScreen;
+            if (primary != null)
+            {
+                _physX = primary.Bounds.X;
+                _physY = primary.Bounds.Y;
+                _physW = Math.Max(1, primary.Bounds.Width);
+                _physH = Math.Max(1, primary.Bounds.Height);
+                return;
+            }
+        }
+        else if (_settings.MonitorMode == MonitorMode.SecondaryOnly && screens.Length > 1)
+        {
+            var secondary = screens.FirstOrDefault(s => !s.Primary) ?? screens[0];
+            _physX = secondary.Bounds.X;
+            _physY = secondary.Bounds.Y;
+            _physW = Math.Max(1, secondary.Bounds.Width);
+            _physH = Math.Max(1, secondary.Bounds.Height);
+            return;
+        }
+
         _physX = NativeMethods.GetSystemMetrics(NativeMethods.SM_XVIRTUALSCREEN);
         _physY = NativeMethods.GetSystemMetrics(NativeMethods.SM_YVIRTUALSCREEN);
         _physW = Math.Max(1, NativeMethods.GetSystemMetrics(NativeMethods.SM_CXVIRTUALSCREEN));
@@ -363,12 +396,39 @@ public partial class MainWindow : Window
     private void OnSettingsChangedFromUi()
     {
         UpdateGlobalHotkeysRegistration();
+        _overlay?.SetTargetFps(_settings.TargetFps);
+        _trayService?.UpdateActivePreset(SnowPresets.Detect(_settings));
+
+        int prevX = _physX, prevY = _physY, prevW = _physW, prevH = _physH;
+        ReadVirtualScreenMetrics();
+        if (prevX != _physX || prevY != _physY || prevW != _physW || prevH != _physH)
+        {
+            _overlay?.Resize(_physX, _physY, _physW, _physH);
+            _dragCompanion?.UpdateOrigin(_physX, _physY);
+            PositionOverlayWindow();
+            _windowTracker?.UpdateScreenBounds(_physX, _physY, _physW, _physH);
+            _engine?.UpdateScreenBounds(_physX, _physY, _physW, _physH);
+        }
+
         if (!_settings.PauseInFullscreenGames && _isFullscreenGameActive)
         {
             _isFullscreenGameActive = false;
         }
         UpdateSimulationRunningState();
         EnsureSettingsWindowAboveOverlay();
+    }
+
+    private void ApplyPresetFromTray(SnowPreset preset)
+    {
+        Dispatcher.BeginInvoke(() =>
+        {
+            if (_engine == null) return;
+            SnowPresets.Apply(_settings, preset);
+            _settings.ApplyToEngine(_engine);
+            _settings.Save();
+            _trayService?.UpdateActivePreset(preset);
+            _settingsWindow?.RefreshFromSettings();
+        });
     }
 
     private void ToggleManualPause()
@@ -438,6 +498,23 @@ public partial class MainWindow : Window
 
     private bool DetectFullscreenOrBorderlessApp()
     {
+        IntPtr earlyFg = NativeMethods.GetForegroundWindow();
+        if (earlyFg != IntPtr.Zero && earlyFg != _hwnd)
+        {
+            NativeMethods.GetWindowThreadProcessId(earlyFg, out uint earlyPid);
+            if (earlyPid != _ownProcessId)
+            {
+                string? earlyName = TryGetProcessName((int)earlyPid);
+                if (!string.IsNullOrEmpty(earlyName))
+                {
+                    if (MatchesProcessList(earlyName, _settings.ForcePauseProcesses))
+                        return true;
+                    if (MatchesProcessList(earlyName, _settings.FullscreenWhitelist))
+                        return false;
+                }
+            }
+        }
+
         if (NativeMethods.SHQueryUserNotificationState(out var state) == 0)
         {
             if (state is NativeMethods.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN
@@ -457,6 +534,15 @@ public partial class MainWindow : Window
         NativeMethods.GetWindowThreadProcessId(fgHwnd, out uint fgPid);
         if (fgPid == _ownProcessId)
             return false;
+
+        string? fgProcName = TryGetProcessName((int)fgPid);
+        if (!string.IsNullOrEmpty(fgProcName))
+        {
+            if (MatchesProcessList(fgProcName, _settings.ForcePauseProcesses))
+                return true;
+            if (MatchesProcessList(fgProcName, _settings.FullscreenWhitelist))
+                return false;
+        }
 
         if (!NativeMethods.IsWindowVisible(fgHwnd) || NativeMethods.IsIconic(fgHwnd))
             return false;
@@ -497,6 +583,31 @@ public partial class MainWindow : Window
                              winRect.Bottom >= monRect.Bottom;
 
         return coversMonitor;
+    }
+
+    private static string? TryGetProcessName(int pid)
+    {
+        try
+        {
+            using var proc = Process.GetProcessById(pid);
+            return proc.ProcessName;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static bool MatchesProcessList(string procName, string csvList)
+    {
+        if (string.IsNullOrWhiteSpace(csvList)) return false;
+        foreach (string raw in csvList.Split(new[] { ',', ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            string clean = raw.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? raw[..^4] : raw;
+            if (string.Equals(procName, clean, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+        return false;
     }
 
     private void UpdateSimulationRunningState()

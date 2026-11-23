@@ -150,7 +150,13 @@ public partial class SettingsWindow : Window
         BlizzardTitleText.Text = Loc.Tr("Режим «Метель / Вьюга»", "Blizzard Mode");
         BlizzardDescText.Text = Loc.Tr("Порывистый штормовой ветер и наклонная траектория снега", "Gusty storm wind and angled snowfall trajectory");
 
-        ThemePaletteTitle.Text = Loc.Tr("Стиль и палитра снега", "Snow Style & Palette");
+        ParticleStyleTitle.Text = Loc.Tr("Тип частиц и сугробов", "Particle & Pile Type");
+        StyleSnowText.Text = Loc.Tr("Снег", "Snow");
+        StyleAutumnText.Text = Loc.Tr("Осень (листья)", "Autumn (Leaves)");
+        StyleSakuraText.Text = Loc.Tr("Сакура (лепестки)", "Sakura (Petals)");
+        StyleEmbersText.Text = Loc.Tr("Искры", "Embers");
+
+        ThemePaletteTitle.Text = Loc.Tr("Цветовая гамма снега", "Snow Color Gamma");
         ThemeWhiteText.Text = Loc.Tr("Классика", "Classic");
         ThemeNeonText.Text = Loc.Tr("Киберпанк", "Cyberpunk");
         ThemeGoldText.Text = Loc.Tr("Золото", "Royal Gold");
@@ -206,6 +212,17 @@ public partial class SettingsWindow : Window
         PowerSavingTitleText.Text = Loc.Tr("Умный режим энергосбережения (Adaptive FPS)", "Smart power saving mode (Adaptive FPS)");
         PowerSavingDescText.Text = Loc.Tr("Плавные 60 FPS во время активности и снижение до 15 FPS при простое", "Smooth 60 FPS while active, drops to 15 FPS when idle");
         PowerTimeoutTitle.Text = Loc.Tr("Таймер перехода в режим сна", "Idle sleep timeout");
+
+        DisplayPerfTitleText.Text = Loc.Tr("Мониторы и лимит FPS", "Monitors & FPS Limit");
+        FpsLimitTitleText.Text = Loc.Tr("Ограничение частоты кадров (для 144/240 Гц мониторов)", "Frame rate limit (for 144/240 Hz monitors)");
+        FpsNativeText.Text = Loc.Tr("Нативный (Hz)", "Native (Hz)");
+        MonitorModeTitleText.Text = Loc.Tr("Область отображения мониторов", "Monitor display mode");
+        MonitorAllText.Text = Loc.Tr("Все мониторы", "All monitors");
+        MonitorPrimaryText.Text = Loc.Tr("Только основной", "Primary only");
+        MonitorSecondaryText.Text = Loc.Tr("Только второй", "Secondary only");
+        ProcessRulesTitleText.Text = Loc.Tr("Списки процессов для автопаузы", "Auto-pause process lists");
+        WhitelistTitleText.Text = Loc.Tr("Исключения (не ставить на паузу в fullscreen, через запятую):", "Whitelist (never pause in fullscreen, comma-separated):");
+        BlacklistTitleText.Text = Loc.Tr("Всегда ставить на паузу (даже в оконном режиме, через запятую):", "Force pause (even in windowed mode, comma-separated):");
 
         HotkeysCardTitleText.Text = Loc.Tr("Глобальные горячие клавиши", "Global hotkeys");
         HotkeysCardDescText.Text = Loc.Tr("Ctrl + Alt + S (пауза/возобновление) и Ctrl + Alt + C (очистить весь снег)", "Ctrl + Alt + S (pause/resume) and Ctrl + Alt + C (clear all snow)");
@@ -269,6 +286,14 @@ public partial class SettingsWindow : Window
         AutoUpdateToggle.IsChecked = _settings.EnableAutoUpdate;
         AutoStartToggle.IsChecked = AppSettings.IsAutoStartEnabled();
 
+        switch (_settings.ParticleStyle)
+        {
+            case ParticleStyle.AutumnLeaves: StyleAutumnRadio.IsChecked = true; break;
+            case ParticleStyle.SakuraPetals: StyleSakuraRadio.IsChecked = true; break;
+            case ParticleStyle.Embers: StyleEmbersRadio.IsChecked = true; break;
+            default: StyleSnowRadio.IsChecked = true; break;
+        }
+
         switch (_settings.ColorTheme)
         {
             case SnowColorTheme.CyberpunkNeon: ThemeNeonRadio.IsChecked = true; break;
@@ -276,6 +301,21 @@ public partial class SettingsWindow : Window
             case SnowColorTheme.FestiveConfetti: ThemeConfettiRadio.IsChecked = true; break;
             default: ThemeWhiteRadio.IsChecked = true; break;
         }
+        ColorGammaCard.Opacity = _settings.ParticleStyle == ParticleStyle.Snow ? 1.0 : 0.45;
+
+        if (_settings.TargetFps == 30) Fps30Radio.IsChecked = true;
+        else if (_settings.TargetFps == 0) FpsNativeRadio.IsChecked = true;
+        else Fps60Radio.IsChecked = true;
+
+        switch (_settings.MonitorMode)
+        {
+            case MonitorMode.PrimaryOnly: MonitorPrimaryRadio.IsChecked = true; break;
+            case MonitorMode.SecondaryOnly: MonitorSecondaryRadio.IsChecked = true; break;
+            default: MonitorAllRadio.IsChecked = true; break;
+        }
+
+        WhitelistTextBox.Text = _settings.FullscreenWhitelist;
+        BlacklistTextBox.Text = _settings.ForcePauseProcesses;
 
         UpdatePresetRadios();
 
@@ -550,6 +590,21 @@ public partial class SettingsWindow : Window
         UpdatePresetRadios();
     }
 
+    private void OnParticleStyleChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isInitializing) return;
+        if (StyleAutumnRadio.IsChecked == true) _settings.ParticleStyle = ParticleStyle.AutumnLeaves;
+        else if (StyleSakuraRadio.IsChecked == true) _settings.ParticleStyle = ParticleStyle.SakuraPetals;
+        else if (StyleEmbersRadio.IsChecked == true) _settings.ParticleStyle = ParticleStyle.Embers;
+        else _settings.ParticleStyle = ParticleStyle.Snow;
+
+        ColorGammaCard.Opacity = _settings.ParticleStyle == ParticleStyle.Snow ? 1.0 : 0.45;
+        _engine.SetParticleStyle(_settings.ParticleStyle);
+        _saveDebounceTimer.Stop();
+        _settings.Save();
+        _onSettingsChanged();
+    }
+
     private void ApplyThemeChange()
     {
         if (ThemeNeonRadio.IsChecked == true) _settings.ColorTheme = SnowColorTheme.CyberpunkNeon;
@@ -560,6 +615,40 @@ public partial class SettingsWindow : Window
         _engine.SetColorTheme(_settings.ColorTheme);
         _saveDebounceTimer.Stop();
         _settings.Save();
+        _onSettingsChanged();
+    }
+
+    private void OnFpsRadioChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isInitializing) return;
+        if (Fps30Radio.IsChecked == true) _settings.TargetFps = 30;
+        else if (FpsNativeRadio.IsChecked == true) _settings.TargetFps = 0;
+        else _settings.TargetFps = 60;
+
+        _saveDebounceTimer.Stop();
+        _settings.Save();
+        _onSettingsChanged();
+    }
+
+    private void OnMonitorRadioChecked(object sender, RoutedEventArgs e)
+    {
+        if (_isInitializing) return;
+        if (MonitorPrimaryRadio.IsChecked == true) _settings.MonitorMode = MonitorMode.PrimaryOnly;
+        else if (MonitorSecondaryRadio.IsChecked == true) _settings.MonitorMode = MonitorMode.SecondaryOnly;
+        else _settings.MonitorMode = MonitorMode.AllMonitors;
+
+        _saveDebounceTimer.Stop();
+        _settings.Save();
+        _onSettingsChanged();
+    }
+
+    private void OnProcessListTextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (_isInitializing) return;
+        _settings.FullscreenWhitelist = WhitelistTextBox.Text ?? string.Empty;
+        _settings.ForcePauseProcesses = BlacklistTextBox.Text ?? string.Empty;
+        _saveDebounceTimer.Stop();
+        _saveDebounceTimer.Start();
     }
 
     private void OnAutoStartToggleClicked(object sender, RoutedEventArgs e)

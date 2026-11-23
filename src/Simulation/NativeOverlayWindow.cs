@@ -311,6 +311,7 @@ public sealed class NativeOverlayWindow : IDisposable
 
     private volatile bool _pacerRunning;
     private volatile bool _lowPowerMode;
+    private volatile int _targetFps = 60;
     private int _pacerGeneration;
     private int _framePending;
 
@@ -328,6 +329,7 @@ public sealed class NativeOverlayWindow : IDisposable
     public bool IsMouseCaptured => _hwnd != IntPtr.Zero && Win32.GetCapture() == _hwnd;
 
     public void SetLowPowerMode(bool lowPower) => _lowPowerMode = lowPower;
+    public void SetTargetFps(int fps) => _targetFps = fps;
 
     public NativeOverlayWindow(int x, int y, int width, int height)
     {
@@ -464,24 +466,32 @@ public sealed class NativeOverlayWindow : IDisposable
     private void PacerLoop(object? state)
     {
         int gen = state is int g ? g : 0;
-        int vblankCounter = 0;
+        long lastFrameTick = 0;
 
         while (_pacerRunning && gen == Volatile.Read(ref _pacerGeneration))
         {
             long t0 = Stopwatch.GetTimestamp();
             Win32.DwmFlush();
-            double ms = (Stopwatch.GetTimestamp() - t0) * 1000.0 / Stopwatch.Frequency;
+            long nowTick = Stopwatch.GetTimestamp();
+            double ms = (nowTick - t0) * 1000.0 / Stopwatch.Frequency;
 
             if (ms < 1.0)
             {
                 Thread.Sleep(12);
+                nowTick = Stopwatch.GetTimestamp();
             }
 
             if (!_pacerRunning || gen != Volatile.Read(ref _pacerGeneration)) break;
 
-            if (_lowPowerMode && (++vblankCounter % 3 != 0))
+            int desiredFps = _lowPowerMode ? 15 : _targetFps;
+            if (desiredFps > 0 && lastFrameTick > 0)
             {
-                continue;
+                double elapsedMs = (nowTick - lastFrameTick) * 1000.0 / Stopwatch.Frequency;
+                double minIntervalMs = (1000.0 / desiredFps) - 1.2;
+                if (elapsedMs < minIntervalMs)
+                {
+                    continue;
+                }
             }
 
             IntPtr hwnd = _hwnd;
@@ -489,6 +499,7 @@ public sealed class NativeOverlayWindow : IDisposable
 
             if (Interlocked.CompareExchange(ref _framePending, 1, 0) == 0)
             {
+                lastFrameTick = nowTick;
                 if (!Win32.PostMessage(hwnd, WM_APP_FRAME, IntPtr.Zero, IntPtr.Zero))
                 {
                     Interlocked.Exchange(ref _framePending, 0);
@@ -677,8 +688,13 @@ public sealed class NativeOverlayWindow : IDisposable
             string dir = System.IO.Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Frosty");
             System.IO.Directory.CreateDirectory(dir);
+            string logFile = System.IO.Path.Combine(dir, "overlay_log.txt");
+            if (System.IO.File.Exists(logFile) && new System.IO.FileInfo(logFile).Length > 65536)
+            {
+                System.IO.File.WriteAllText(logFile, string.Empty);
+            }
             System.IO.File.AppendAllText(
-                System.IO.Path.Combine(dir, "overlay_log.txt"),
+                logFile,
                 $"{DateTime.Now:HH:mm:ss.fff} {message}{Environment.NewLine}");
         }
         catch

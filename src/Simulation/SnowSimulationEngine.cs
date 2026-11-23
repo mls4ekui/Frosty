@@ -11,6 +11,14 @@ public enum SnowColorTheme
     FestiveConfetti = 3
 }
 
+public enum ParticleStyle
+{
+    Snow = 0,
+    AutumnLeaves = 1,
+    SakuraPetals = 2,
+    Embers = 3
+}
+
 public struct Particle
 {
     public float X;
@@ -256,6 +264,9 @@ public sealed class SnowSimulationEngine : IDisposable
     private bool _enableScreenSplatters = true;
 
     private SnowColorTheme _colorTheme = SnowColorTheme.ClassicWhite;
+    private ParticleStyle _particleStyle = ParticleStyle.Snow;
+    private SKBitmap? _bankTextureBitmap;
+    private SKShader? _bankTextureShader;
 
     private SKRect _settingsExclusionRect;
     private bool _hasSettingsExclusion;
@@ -335,6 +346,42 @@ public sealed class SnowSimulationEngine : IDisposable
         new(255, 159, 64),
         new(74, 222, 128),
         new(244, 114, 182)
+    };
+
+    private static readonly SKColor[] SakuraPalette =
+    {
+        new(255, 183, 197),
+        new(255, 209, 220),
+        new(244, 143, 177),
+        new(255, 228, 235),
+        new(251, 160, 184),
+        new(255, 192, 203),
+        new(249, 168, 212),
+        new(255, 240, 245)
+    };
+
+    private static readonly SKColor[] AutumnPalette =
+    {
+        new(234, 88, 12),
+        new(217, 119, 6),
+        new(220, 38, 38),
+        new(245, 158, 11),
+        new(180, 83, 9),
+        new(251, 146, 60),
+        new(194, 65, 12),
+        new(239, 68, 68)
+    };
+
+    private static readonly SKColor[] EmberPalette =
+    {
+        new(255, 107, 53),
+        new(255, 159, 28),
+        new(255, 214, 10),
+        new(247, 127, 0),
+        new(255, 84, 0),
+        new(255, 190, 11),
+        new(251, 86, 7),
+        new(255, 230, 150)
     };
 
     private static readonly SKColor[] ScarfColors =
@@ -562,12 +609,18 @@ public sealed class SnowSimulationEngine : IDisposable
     {
         for (int colIdx = 0; colIdx < ColorVariantCount; colIdx++)
         {
-            SKColor baseColor = _colorTheme switch
+            SKColor baseColor = _particleStyle switch
             {
-                SnowColorTheme.CyberpunkNeon => NeonPalette[colIdx % NeonPalette.Length],
-                SnowColorTheme.RoyalGold => GoldPalette[colIdx % GoldPalette.Length],
-                SnowColorTheme.FestiveConfetti => ConfettiPalette[colIdx % ConfettiPalette.Length],
-                _ => new SKColor(255, 255, 255)
+                ParticleStyle.AutumnLeaves => AutumnPalette[colIdx % AutumnPalette.Length],
+                ParticleStyle.SakuraPetals => SakuraPalette[colIdx % SakuraPalette.Length],
+                ParticleStyle.Embers => EmberPalette[colIdx % EmberPalette.Length],
+                _ => _colorTheme switch
+                {
+                    SnowColorTheme.CyberpunkNeon => NeonPalette[colIdx % NeonPalette.Length],
+                    SnowColorTheme.RoyalGold => GoldPalette[colIdx % GoldPalette.Length],
+                    SnowColorTheme.FestiveConfetti => ConfettiPalette[colIdx % ConfettiPalette.Length],
+                    _ => new SKColor(255, 255, 255)
+                }
             };
 
             byte alphaFactor = (byte)(185 + (colIdx % 4) * 20);
@@ -578,41 +631,254 @@ public sealed class SnowSimulationEngine : IDisposable
 
                 int sz = SpriteSizes[sIdx];
                 float center = sz * 0.5f;
-                float radius = center - 0.5f;
+                float radius = center - 0.8f;
 
                 var bmp = new SKBitmap(sz, sz, SKColorType.Bgra8888, SKAlphaType.Premul);
                 using var canvas = new SKCanvas(bmp);
                 canvas.Clear(SKColors.Transparent);
 
-                using var shader = SKShader.CreateRadialGradient(
-                    new SKPoint(center, center),
-                    radius,
-                    new[]
-                    {
-                        baseColor.WithAlpha(alphaFactor),
-                        baseColor.WithAlpha((byte)(alphaFactor * 0.92f)),
-                        baseColor.WithAlpha((byte)(alphaFactor * 0.55f)),
-                        baseColor.WithAlpha((byte)(alphaFactor * 0.18f)),
-                        baseColor.WithAlpha(0)
-                    },
-                    new[] { 0.0f, 0.32f, 0.62f, 0.85f, 1.0f },
-                    SKShaderTileMode.Clamp);
+                if (_particleStyle == ParticleStyle.AutumnLeaves)
+                {
+                    DrawMapleLeaf(canvas, center, center, radius * 0.96f, (colIdx * 43 + sIdx * 29) % 360, baseColor);
+                }
+                else if (_particleStyle == ParticleStyle.SakuraPetals)
+                {
+                    DrawSakuraPetal(canvas, center, center, radius * 0.94f, (colIdx * 47 + sIdx * 31) % 360, baseColor);
+                }
+                else if (_particleStyle == ParticleStyle.Embers)
+                {
+                    DrawEmberSpark(canvas, center, center, radius * 0.95f, (colIdx * 37 + sIdx * 19) % 360, baseColor);
+                }
+                else
+                {
+                    using var shader = SKShader.CreateRadialGradient(
+                        new SKPoint(center, center),
+                        radius,
+                        new[]
+                        {
+                            baseColor.WithAlpha(alphaFactor),
+                            baseColor.WithAlpha((byte)(alphaFactor * 0.92f)),
+                            baseColor.WithAlpha((byte)(alphaFactor * 0.55f)),
+                            baseColor.WithAlpha((byte)(alphaFactor * 0.18f)),
+                            baseColor.WithAlpha(0)
+                        },
+                        new[] { 0.0f, 0.32f, 0.62f, 0.85f, 1.0f },
+                        SKShaderTileMode.Clamp);
 
-                using var paint = new SKPaint { IsAntialias = true, Shader = shader };
-                canvas.DrawCircle(center, center, radius, paint);
+                    using var paint = new SKPaint { IsAntialias = true, Shader = shader };
+                    canvas.DrawCircle(center, center, radius, paint);
+                }
+
                 canvas.Flush();
-
                 bmp.SetImmutable();
                 _bakedBitmaps[colIdx, sIdx] = bmp;
             }
         }
 
-        _snowdriftPaint.Color = _colorTheme switch
+        RebuildBankTexture();
+    }
+
+    private void RebuildBankTexture()
+    {
+        _snowdriftPaint.Shader = null;
+        _bankTextureShader?.Dispose();
+        _bankTextureShader = null;
+        _bankTextureBitmap?.Dispose();
+        _bankTextureBitmap = null;
+
+        if (_particleStyle == ParticleStyle.Snow)
         {
-            SnowColorTheme.CyberpunkNeon => new SKColor(220, 248, 255, 245),
-            SnowColorTheme.RoyalGold => new SKColor(255, 248, 220, 245),
-            _ => new SKColor(246, 250, 255, 248)
-        };
+            _snowdriftPaint.Color = _colorTheme switch
+            {
+                SnowColorTheme.CyberpunkNeon => new SKColor(220, 248, 255, 245),
+                SnowColorTheme.RoyalGold => new SKColor(255, 248, 220, 245),
+                _ => new SKColor(246, 250, 255, 248)
+            };
+            return;
+        }
+
+        const int tile = 128;
+        var bmp = new SKBitmap(tile, tile, SKColorType.Bgra8888, SKAlphaType.Premul);
+        using (var canvas = new SKCanvas(bmp))
+        {
+            var rng = new Random(4242);
+
+            if (_particleStyle == ParticleStyle.AutumnLeaves)
+            {
+                canvas.Clear(new SKColor(115, 48, 16, 250));
+                for (int i = 0; i < 110; i++)
+                {
+                    float x = (float)(rng.NextDouble() * tile);
+                    float y = (float)(rng.NextDouble() * tile);
+                    float r = 7.5f + (float)(rng.NextDouble() * 7.5);
+                    float ang = (float)(rng.NextDouble() * 360.0);
+                    SKColor col = AutumnPalette[i % AutumnPalette.Length];
+
+                    for (int ox = -tile; ox <= tile; ox += tile)
+                    {
+                        for (int oy = -tile; oy <= tile; oy += tile)
+                        {
+                            float dx = x + ox;
+                            float dy = y + oy;
+                            if (dx < -r * 2 || dx > tile + r * 2 || dy < -r * 2 || dy > tile + r * 2) continue;
+                            DrawMapleLeaf(canvas, dx, dy, r, ang, col, withShadow: true);
+                        }
+                    }
+                }
+            }
+            else if (_particleStyle == ParticleStyle.SakuraPetals)
+            {
+                canvas.Clear(new SKColor(242, 186, 206, 245));
+                for (int i = 0; i < 120; i++)
+                {
+                    float x = (float)(rng.NextDouble() * tile);
+                    float y = (float)(rng.NextDouble() * tile);
+                    float r = 6.5f + (float)(rng.NextDouble() * 6.5);
+                    float ang = (float)(rng.NextDouble() * 360.0);
+                    SKColor col = SakuraPalette[i % SakuraPalette.Length];
+
+                    for (int ox = -tile; ox <= tile; ox += tile)
+                    {
+                        for (int oy = -tile; oy <= tile; oy += tile)
+                        {
+                            float dx = x + ox;
+                            float dy = y + oy;
+                            if (dx < -r * 2 || dx > tile + r * 2 || dy < -r * 2 || dy > tile + r * 2) continue;
+                            DrawSakuraPetal(canvas, dx, dy, r, ang, col, withShadow: true);
+                        }
+                    }
+                }
+            }
+            else if (_particleStyle == ParticleStyle.Embers)
+            {
+                canvas.Clear(new SKColor(32, 24, 22, 246));
+                using var ashPaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill };
+                for (int i = 0; i < 140; i++)
+                {
+                    float x = (float)(rng.NextDouble() * tile);
+                    float y = (float)(rng.NextDouble() * tile);
+                    float r = 3f + (float)(rng.NextDouble() * 6f);
+                    byte v = (byte)(28 + rng.Next(36));
+                    ashPaint.Color = new SKColor((byte)(v + 12), v, (byte)Math.Max(0, v - 4), 230);
+                    canvas.DrawCircle(x, y, r, ashPaint);
+                }
+                for (int i = 0; i < 42; i++)
+                {
+                    float x = (float)(rng.NextDouble() * tile);
+                    float y = (float)(rng.NextDouble() * tile);
+                    float r = 3.5f + (float)(rng.NextDouble() * 4.5);
+                    SKColor col = EmberPalette[i % EmberPalette.Length];
+                    DrawEmberSpark(canvas, x, y, r, (float)(rng.NextDouble() * 360.0), col);
+                }
+            }
+
+            canvas.Flush();
+        }
+
+        bmp.SetImmutable();
+        _bankTextureBitmap = bmp;
+        _bankTextureShader = SKShader.CreateBitmap(bmp, SKShaderTileMode.Repeat, SKShaderTileMode.Repeat);
+        _snowdriftPaint.Color = SKColors.White;
+        _snowdriftPaint.Shader = _bankTextureShader;
+    }
+
+    private static void DrawMapleLeaf(SKCanvas canvas, float cx, float cy, float r, float angleDeg, SKColor color, bool withShadow = false)
+    {
+        canvas.Save();
+        canvas.Translate(cx, cy);
+        canvas.RotateDegrees(angleDeg);
+
+        using var path = new SKPath();
+        // Stylized 5-lobe autumn leaf
+        path.MoveTo(0f, -r);
+        path.LineTo(r * 0.24f, -r * 0.36f);
+        path.LineTo(r * 0.88f, -r * 0.32f);
+        path.LineTo(r * 0.42f, r * 0.08f);
+        path.LineTo(r * 0.66f, r * 0.56f);
+        path.LineTo(r * 0.12f, r * 0.42f);
+        path.LineTo(0f, r * 0.92f);
+        path.LineTo(-r * 0.12f, r * 0.42f);
+        path.LineTo(-r * 0.66f, r * 0.56f);
+        path.LineTo(-r * 0.42f, r * 0.08f);
+        path.LineTo(-r * 0.88f, -r * 0.32f);
+        path.LineTo(-r * 0.24f, -r * 0.36f);
+        path.Close();
+
+        if (withShadow)
+        {
+            using var shadowPaint = new SKPaint { IsAntialias = true, Color = new SKColor(28, 12, 4, 110) };
+            canvas.Save();
+            canvas.Translate(1.2f, 1.4f);
+            canvas.DrawPath(path, shadowPaint);
+            canvas.Restore();
+        }
+
+        using var fillPaint = new SKPaint { IsAntialias = true, Color = color.WithAlpha(242), Style = SKPaintStyle.Fill };
+        canvas.DrawPath(path, fillPaint);
+
+        var edgeColor = new SKColor(
+            (byte)(color.Red * 0.62f),
+            (byte)(color.Green * 0.55f),
+            (byte)(color.Blue * 0.50f),
+            210);
+        using var veinPaint = new SKPaint { IsAntialias = true, Color = edgeColor, Style = SKPaintStyle.Stroke, StrokeWidth = Math.Max(0.8f, r * 0.09f) };
+        canvas.DrawPath(path, veinPaint);
+        canvas.DrawLine(0f, -r * 0.72f, 0f, r * 0.78f, veinPaint);
+
+        canvas.Restore();
+    }
+
+    private static void DrawSakuraPetal(SKCanvas canvas, float cx, float cy, float r, float angleDeg, SKColor color, bool withShadow = false)
+    {
+        canvas.Save();
+        canvas.Translate(cx, cy);
+        canvas.RotateDegrees(angleDeg);
+
+        using var path = new SKPath();
+        // Classic cherry blossom petal with V-notch at tip
+        path.MoveTo(0f, r * 0.85f);
+        path.CubicTo(-r * 0.78f, r * 0.30f, -r * 0.72f, -r * 0.58f, -r * 0.24f, -r * 0.88f);
+        path.LineTo(0f, -r * 0.56f);
+        path.LineTo(r * 0.24f, -r * 0.88f);
+        path.CubicTo(r * 0.72f, -r * 0.58f, r * 0.78f, r * 0.30f, 0f, r * 0.85f);
+        path.Close();
+
+        if (withShadow)
+        {
+            using var shadowPaint = new SKPaint { IsAntialias = true, Color = new SKColor(150, 70, 100, 75) };
+            canvas.Save();
+            canvas.Translate(1.0f, 1.2f);
+            canvas.DrawPath(path, shadowPaint);
+            canvas.Restore();
+        }
+
+        using var grad = SKShader.CreateLinearGradient(
+            new SKPoint(0, -r),
+            new SKPoint(0, r),
+            new[] { color.WithAlpha(245), new SKColor(255, 245, 250, 235) },
+            SKShaderTileMode.Clamp);
+        using var fillPaint = new SKPaint { IsAntialias = true, Shader = grad };
+        canvas.DrawPath(path, fillPaint);
+
+        canvas.Restore();
+    }
+
+    private static void DrawEmberSpark(SKCanvas canvas, float cx, float cy, float r, float angleDeg, SKColor color)
+    {
+        canvas.Save();
+        canvas.Translate(cx, cy);
+        canvas.RotateDegrees(angleDeg);
+
+        using var glowShader = SKShader.CreateRadialGradient(
+            new SKPoint(0, 0),
+            r,
+            new[] { new SKColor(255, 250, 210, 255), color.WithAlpha(220), color.WithAlpha(70), color.WithAlpha(0) },
+            new[] { 0.0f, 0.35f, 0.72f, 1.0f },
+            SKShaderTileMode.Clamp);
+        using var glowPaint = new SKPaint { IsAntialias = true, Shader = glowShader };
+        canvas.DrawOval(0, 0, r * 0.95f, r * 0.58f, glowPaint);
+
+        canvas.Restore();
     }
 
     public void SetActiveParticleCount(int count) => _activeParticles = Math.Clamp(count, 100, MaxParticlesPool);
@@ -675,6 +941,20 @@ public sealed class SnowSimulationEngine : IDisposable
     {
         if (_colorTheme == theme) return;
         _colorTheme = theme;
+        if (_particleStyle == ParticleStyle.Snow)
+            RebuildBakedBitmaps();
+    }
+
+    private bool IsSnowMode => _particleStyle == ParticleStyle.Snow;
+
+    public void SetParticleStyle(ParticleStyle style)
+    {
+        if (_particleStyle == style) return;
+        _particleStyle = style;
+        if (!IsSnowMode)
+        {
+            ClearSnowmenAndSnowballs();
+        }
         RebuildBakedBitmaps();
     }
 
@@ -867,7 +1147,7 @@ public sealed class SnowSimulationEngine : IDisposable
 
     public bool ShouldInterceptMouse(float x, float y)
     {
-        if (!_enableSnowballCrafting || IsPointInsideExcludedUi(x, y))
+        if (!IsSnowMode || !_enableSnowballCrafting || IsPointInsideExcludedUi(x, y))
             return false;
 
         if (_activeSnowball != null || _activeSnowman != null)
@@ -930,7 +1210,7 @@ public sealed class SnowSimulationEngine : IDisposable
 
     public bool OnMouseDown(float x, float y)
     {
-        if (!_enableSnowballCrafting || IsPointInsideExcludedUi(x, y)) return false;
+        if (!IsSnowMode || !_enableSnowballCrafting || IsPointInsideExcludedUi(x, y)) return false;
 
         _idleSeconds = 0f;
         _throwVx = 0f;
@@ -1018,6 +1298,7 @@ public sealed class SnowSimulationEngine : IDisposable
 
     public bool OnRightMouseDown(float x, float y)
     {
+        if (!IsSnowMode) return false;
         if (IsPointInsideExcludedUi(x, y)) return false;
 
         _idleSeconds = 0f;
@@ -3168,6 +3449,9 @@ public sealed class SnowSimulationEngine : IDisposable
                 _bakedBitmaps[c, s]?.Dispose();
             }
         }
+        _snowdriftPaint.Shader = null;
+        _bankTextureShader?.Dispose();
+        _bankTextureBitmap?.Dispose();
         _snowdriftPaint.Dispose();
         _ballShadowPaint.Dispose();
         _activeHighlightPaint.Dispose();
